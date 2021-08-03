@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/game', function(Request $request) {
+    return response(json_encode([
+        'data' => 'game',
+    ]), 200)->header('Content-Type', 'application/json');
 });
