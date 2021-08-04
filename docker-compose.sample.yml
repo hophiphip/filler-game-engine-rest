@@ -1,0 +1,59 @@
+version: '3'
+services:
+    laravel:
+        build: .
+        ports:
+            # Map TCP port 8000 in the container to port 8080 on the Docker host
+            - '8080:8000'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - appnet
+        depends_on:
+            - redis
+            - mongodb
+    redis:
+        image: 'redis:alpine'
+        # Docker daemon, might be killed by the kernel OOM(Out Of Memory Exceptions) killer
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+        ports:
+            - '6379:6379'
+        volumes:
+            - 'redisdata:/data'
+        networks:
+            - appnet
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          retries: 3
+          timeout: 5s
+    mongodb:
+        image: 'mongo'
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: '' # Set DB username
+            MONGO_INITDB_ROOT_PASSWORD: '' # Set DB password
+        volumes:
+          - 'mongodata:/data/db'
+        networks:
+            - appnet
+        ports:
+            - '27017:27017'
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017 --quiet
+            retries: 3
+            timeout: 10s
+networks:
+    appnet:
+        driver: bridge
+volumes:
+    redisdata:
+        driver: local       
+        external: false
+    mongodata:
+        driver: local       
+        external: false
