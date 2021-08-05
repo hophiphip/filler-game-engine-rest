@@ -97,7 +97,10 @@ class Game extends Model {
         // update current player id : next player turn
         $currentPlayerId = (($currentPlayerId % 2) + 1);
 
-
+        // TODO: Remove later
+        //Log::channel('stderr')->info("Percentage: ");
+        //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells));
+        //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells) > 0.5);
         // SET
         // TODO: Too many too big updates --> can be improved --> update inly specific field/subfields
         // TODO: Try using DB array methods -> push & pull (with 'stats')
@@ -105,6 +108,12 @@ class Game extends Model {
         $this->players = $players;
         $this->field = $field;
         $this->stats = $stats;
+        
+        // update winner player id
+        if (count($stats[$currentPlayerId]) / count($field->cells) > 0.5) {
+            $this->winnerPlayerId = $currentPlayerId;
+        }
+        
         $this->save(); 
     }
 }
