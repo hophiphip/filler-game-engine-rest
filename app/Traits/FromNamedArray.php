@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Log;
+
 // TODO: But subclasses are still arrays .. update trait to make subclasses accesssible or implement AccessArray trait on Models to prevent possible errors 
 
 // TODO: Mb. fail on missing key -> or add flag to fail on missing key

@@ -102,7 +102,7 @@ class Game extends Model {
         //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells));
         //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells) > 0.5);
         // SET
-        // TODO: Too many too big updates --> can be improved --> update inly specific field/subfields
+        // TODO: Too many too big updates --> can be improved --> update only specific field/subfields
         // TODO: Try using DB array methods -> push & pull (with 'stats')
         $this->currentPlayerId = $currentPlayerId;
         $this->players = $players;

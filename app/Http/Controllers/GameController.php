@@ -39,22 +39,25 @@ class GameController extends Controller {
         $playerOne = new Player(1, $colorPair[1]);
         $playerTwo = new Player(2, $colorPair[2]);
 
-        //Log::channel('stderr')->info('Creating a new field..');
         $field = new Field($width, $height);
 
-        // DEBUG:
+        // NOTE:
         Log::channel('stderr')->info($field->width);
         // NOTE: This will fail, will need ArrayAccess or recursive FromNamedArray trait
         //Log::channel('stderr')->info($field["width"]);
 
         // Initialize players staring cells:
-        // Bottom left cell for the 1st player
-        $field->cells[count($field->cells) - $field->width]->playerId = $playerOne->id;
-        $field->cells[count($field->cells) - $field->width]->color = $playerOne->color;
-        // Top right cell for the 2nd player
-        $field->cells[$field->width - 1]->playerId = $playerTwo->id;
-        $field->cells[$field->width - 1]->color = $playerTwo->color;
+        //
+        // 1st player starts with bottom-left cell
+        $bottomLeftIndex = count($field->cells) - $field->width; 
+        // 2nd player starts with top-right cell
+        $topRightIndex = $field->width - 1; 
         
+        $field->cells[$bottomLeftIndex]->playerId = $playerOne->id;
+        $field->cells[$bottomLeftIndex]->color = $playerOne->color;
+        
+        $field->cells[$topRightIndex]->playerId = $playerTwo->id;
+        $field->cells[$topRightIndex]->color = $playerTwo->color;
 
         $game = Game::create([
             'currentPlayerId' => 1,
@@ -64,10 +67,9 @@ class GameController extends Controller {
                 1 => $playerOne,
                 2 => $playerTwo,
             ],
-            // players' cells
             'stats' => [
-                1 => [count($field->cells) - $field->width],
-                2 => [$field->width - 1],
+                1 => [$bottomLeftIndex],
+                2 => [$topRightIndex],
             ],
         ]);
 
@@ -87,6 +89,13 @@ class GameController extends Controller {
 
 
         $game = Game::find($id);
+        
+        // NOTE: ...
+        $field = Field::fromArray($game->field); 
+        Log::channel('stderr')->info($field->cells[1]);
+        Log::channel('stderr')->info($field->cells[1]["color"]);
+        // NOTE: The issue is here .. FromNamedArray trait doesn't convert inner properties to Class
+        //Log::channel('stderr')->info($field->cells[1]->color);
 
         if ($game) {
             return response(json_encode([
@@ -109,7 +118,7 @@ class GameController extends Controller {
             'playerId' => 'required|numeric|max:2|min:1',
             'color' => [
                 'required',
-                // match colors like #000000-#FFFFFF(#ffffff) / 6-letter ones
+                // match colors like #000000-#ffffff / 6-letter ones
                 'regex:/^#([0-9a-f]{6})$/i', 
             ],
         ]);
@@ -155,13 +164,8 @@ class GameController extends Controller {
 
             // Handle player move
             else {
-                //Log::channel('stderr')->info("Game:");
-                //Log::channel('stderr')->info($game->currentPlayerId);
-        
                 $game->handleMove($color);
                 
-                //Log::channel('stderr')->info($game->currentPlayerId);
-
                 // TODO: mb. Return only updated cells ? 
                 return response(json_encode([
                     'id'              => $game->id,
