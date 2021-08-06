@@ -34,17 +34,12 @@ class GameController extends Controller {
                     ->header('Content-Type', 'application/json');
         }
 
-        $colorPair = Colors::randomColorPair();
-        
-        $playerOne = new Player(1, $colorPair[1]);
-        $playerTwo = new Player(2, $colorPair[2]);
+        $colors = Colors::shuffledColors(); 
+
+        $playerOne = new Player(1, $colors[1]);
+        $playerTwo = new Player(2, $colors[2]);
 
         $field = new Field($width, $height);
-
-        // NOTE:
-        Log::channel('stderr')->info($field->width);
-        // NOTE: This will fail, will need ArrayAccess or recursive FromNamedArray trait
-        //Log::channel('stderr')->info($field["width"]);
 
         // Initialize players staring cells:
         //
@@ -58,6 +53,13 @@ class GameController extends Controller {
         
         $field->cells[$topRightIndex]->playerId = $playerTwo->id;
         $field->cells[$topRightIndex]->color = $playerTwo->color;
+
+        // Neighbor cells must differ from initial player cells
+        //
+        // 1st player's neighbor cell
+        $field->cells[$bottomLeftIndex - $field->width + 1]->color = $colors[3];
+        // 2nd player's neighbor cell
+        $field->cells[$topRightIndex + $field->width - 1]->color = $colors[4];
 
         $game = Game::create([
             'currentPlayerId' => 1,
@@ -90,11 +92,10 @@ class GameController extends Controller {
 
         $game = Game::find($id);
         
-        // NOTE: ...
+        // NOTE: This will fail, will need ArrayAccess or recursive FromNamedArray trait
         $field = Field::fromArray($game->field); 
         Log::channel('stderr')->info($field->cells[1]);
         Log::channel('stderr')->info($field->cells[1]["color"]);
-        // NOTE: The issue is here .. FromNamedArray trait doesn't convert inner properties to Class
         //Log::channel('stderr')->info($field->cells[1]->color);
 
         if ($game) {

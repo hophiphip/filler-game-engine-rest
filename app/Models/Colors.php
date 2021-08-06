@@ -21,9 +21,7 @@ final class Colors {
         return self::$colors[random_int(0, count(self::$colors) - 1)];
     }
 
-    // TODO:  `Color-pair` is not enough. Need `color-set`: 
-    //  Yeah, color pair is cool, but what about case when player's first move is
-    //      blocked -> neighbour cell has the same color as any of the players
+    // NOTE: Not needed, use shuffledColors
     public static function randomColorPair(): array {
         $one = 0;
         $two = 0;
@@ -36,5 +34,13 @@ final class Colors {
             1 => self::$colors[$one],
             2 => self::$colors[$two],
         );
+    }
+
+    public static function shuffledColors(): array {
+        $out = array();
+        $out = self::$colors;
+
+        shuffle($out);
+        return $out;
     }
 }
