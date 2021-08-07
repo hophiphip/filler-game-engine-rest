@@ -2,10 +2,6 @@
 
 namespace App\Models;
 
-// TODO: Different color representation: 
-//      Colors can be represented not only in hex form ->
-//          add support for colors: [red, green, ... ]
-
 final class Colors {
     public static $colorsTable = array(
         '#ff0000' => 0,
@@ -16,13 +12,13 @@ final class Colors {
         '#00ffff' => 5,
         '#ffffff' => 6,
 
-        'red'     => 0,
-        'green'   => 1,
-        'blue'    => 2,
-        'yellow'  => 3,
+            'red' => 0,
+          'green' => 1,
+           'blue' => 2,
+         'yellow' => 3,
         'magenta' => 4,
-        'cyan'    => 5,
-        'white'   => 6,
+           'cyan' => 5,
+          'white' => 6,
     )   
     
 
@@ -40,26 +36,20 @@ final class Colors {
         return self::$colors[random_int(0, count(self::$colors) - 1)];
     }
 
-    // NOTE: Not needed, use shuffledColors
-    public static function randomColorPair(): array {
-        $one = 0;
-        $two = 0;
-        while ($one == $two) {
-            $one = random_int(0, count(self::$colors) - 1);
-            $two = random_int(0, count(self::$colors) - 1);
-        }
-
-        return array(
-            1 => self::$colors[$one],
-            2 => self::$colors[$two],
-        );
-    }
-
     public static function shuffledColors(): array {
         $out = array();
         $out = self::$colors;
 
         shuffle($out);
         return $out;
+    }
+
+    public static function compareColors(string _r, string _l): bool {
+        $r = strtolower(_r);
+        $l = strtolower(_l);
+        if (!array_key_exists(r, self::$colorsTable) || !array_key_exists(l, self::$colorsTable))
+            return false;
+
+        return self::$colorsTable[r] == self::$colorsTable[l];
     }
 }
