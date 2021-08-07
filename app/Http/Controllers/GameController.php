@@ -142,7 +142,6 @@ class GameController extends Controller {
         $color = $request->input('color');
         $game = Game::find($id);
 
-
         if ($game) {
             // Check & Handle incorrect player id
             if ($game->currentPlayerId != $playerId) {
