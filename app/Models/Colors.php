@@ -19,7 +19,7 @@ final class Colors {
         'magenta' => 4,
            'cyan' => 5,
           'white' => 6,
-    )   
+    );   
     
 
     public static $colors = array(
@@ -44,12 +44,12 @@ final class Colors {
         return $out;
     }
 
-    public static function compareColors(string _r, string _l): bool {
-        $r = strtolower(_r);
-        $l = strtolower(_l);
-        if (!array_key_exists(r, self::$colorsTable) || !array_key_exists(l, self::$colorsTable))
+    public static function compareColors(string $_r, string $_l): bool {
+        $r = strtolower($_r);
+        $l = strtolower($_l);
+        if (!array_key_exists($r, self::$colorsTable) || !array_key_exists($l, self::$colorsTable))
             return false;
 
-        return self::$colorsTable[r] == self::$colorsTable[l];
+        return self::$colorsTable[$r] == self::$colorsTable[$l];
     }
 }
