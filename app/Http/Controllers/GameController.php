@@ -93,9 +93,9 @@ class GameController extends Controller {
         $game = Game::find($id);
         
         // NOTE: This will fail, will need ArrayAccess or recursive FromNamedArray trait
-        $field = Field::fromArray($game->field); 
-        Log::channel('stderr')->info($field->cells[1]);
-        Log::channel('stderr')->info($field->cells[1]["color"]);
+        //$field = Field::fromArray($game->field); 
+        //Log::channel('stderr')->info($field->cells[1]);
+        //Log::channel('stderr')->info($field->cells[1]["color"]);
         //Log::channel('stderr')->info($field->cells[1]->color);
 
         if ($game) {

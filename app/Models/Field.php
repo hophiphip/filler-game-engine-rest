@@ -5,13 +5,6 @@ namespace App\Models;
 use App\Traits\FromNamedArray;
 use Illuminate\Support\Facades\Log;
 
-// NOTE: Check for possble div-typos:
-//
-//  ( ͡° ͜ʖ ͡°) 5 / 2 = 2.5  .. 
-//      
-//      https://www.php.net/manual/en/language.operators.arithmetic.php
-//
-
 class Field {
     use FromNamedArray;
 

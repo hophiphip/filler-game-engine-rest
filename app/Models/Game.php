@@ -6,7 +6,6 @@ use Jenssegers\Mongodb\Eloquent\Model;
 
 use Illuminate\Support\Facades\Log;
 
-// TODO: Add new game creation initializer and not do all this in controller
 
 class Game extends Model {
     protected $collection = 'game_collection';
@@ -97,10 +96,6 @@ class Game extends Model {
         // update current player id : next player turn
         $currentPlayerId = (($currentPlayerId % 2) + 1);
 
-        // TODO: Remove later
-        //Log::channel('stderr')->info("Percentage: ");
-        //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells));
-        //Log::channel('stderr')->info(count($stats[$currentPlayerId]) / count($field->cells) > 0.5);
         // SET
         // TODO: Too many too big updates --> can be improved --> update only specific field/subfields
         // TODO: Try using DB array methods -> push & pull (with 'stats')
