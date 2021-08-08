@@ -119,8 +119,7 @@ class GameController extends Controller {
             'playerId' => 'required|numeric|max:2|min:1',
             'color' => [
                 'required',
-                // match colors like #000000-#ffffff / 6-letter ones
-                'regex:/^#([0-9a-f]{6})$/i', 
+                'regex:' . Colors::$colorsRegex, 
             ],
         ]);
 
@@ -153,10 +152,10 @@ class GameController extends Controller {
             // Check & Handle incorrect color
             else if (
                 // Players can't have same color
-                strcasecmp($color, $game->players[($game->currentPlayerId % 2) + 1]['color']) == 0 ||
+                Colors::compareColors($color, $game->players[($game->currentPlayerId % 2) + 1]['color']) ||
                 // Player can't choose own color
-                strcasecmp($color, $game->players[$game->currentPlayerId]['color']) == 0
-            ){
+                Colors::compareColors($color, $game->players[$game->currentPlayerId]['color']))
+            {
                 return response(json_encode([
                     "error" => "provided player can't choose this color",
                 ]), 409)->header('Content-Type', 'application/json');

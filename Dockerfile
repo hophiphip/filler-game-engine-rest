@@ -2,6 +2,8 @@
 #       https://hub.docker.com/_/php
 FROM php:8.0-cli-alpine
 
+# TODO: Use something like supervisord to keep the server running
+
 # Reference:
 #       https://github.com/mlocati/docker-php-extension-installer
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/

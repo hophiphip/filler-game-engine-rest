@@ -20,4 +20,19 @@ class ColorsTest extends TestCase
         $this->assertTrue(Colors::compareColors('white', 'white'));
         $this->assertTrue(!Colors::compareColors('white', '#000000'));
     }
+
+    public function testColorsRegex() {
+        foreach (Colors::$colorsTable as $color => $_) {
+            $this->assertTrue(preg_match(Colors::$colorsRegex, $color) == 1);
+        }
+
+       $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#fff'));
+       $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#000000000'));
+       $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#red'));
+       $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#000000red'));
+       $this->assertTrue(1 != preg_match(Colors::$colorsRegex, 'white#000000'));
+       
+       $this->assertTrue(preg_match(Colors::$colorsRegex, 'RED') == 1);
+       $this->assertTrue(preg_match(Colors::$colorsRegex, 'BLUE') == 1);
+    }
 }

@@ -3,6 +3,9 @@
 namespace App\Models;
 
 final class Colors {
+    // Should match all colors from $colorsTable (case insensitive)
+    public static $colorsRegex = '/^#([0-9a-f]{6})$|^red$|^green$|^blue$|^yellow$|^magenta$|^cyan$|^white$/i';
+
     public static $colorsTable = array(
         '#ff0000' => 0,
         '#00ff00' => 1,
