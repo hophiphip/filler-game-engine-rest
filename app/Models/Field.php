@@ -20,7 +20,7 @@ class Field {
         //
         // NOTE: width  -> any
         //       height -> odd 
-        //
+        
         // o o o o
         //  o o o
         // o o o o
@@ -158,21 +158,10 @@ class Field {
                $this->isInBottomCorner($i);
     }
 
-    // TODO: Could be inlined / but leave it like that for possible logging/testing stuff 
-    // Test if cell can be colored | assigned to player
     public function isAssignable(int $currentIndex, int $otherIndex, string $playerColor): bool {
-        if ($this->isValidIndex($currentIndex)) {
-            if ($this->isValidIndex($otherIndex)) {
-                if ($this->cells[$currentIndex]["playerId"] != 
-                    $this->cells[$otherIndex]["playerId"]) {
-                    if (strcasecmp($playerColor, $this->cells[$otherIndex]["color"]) == 0) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-
-        return false;
+        return $this->isValidIndex($currentIndex) &&
+               $this->isValidIndex($otherIndex)   &&
+               $this->cells[$currentIndex]["playerId"] != $this->cells[$otherIndex]["playerId"] &&
+               Colors::compareColors($playerColor, $this->cells[$otherIndex]["color"]);
     }
 }

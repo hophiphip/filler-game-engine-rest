@@ -15,7 +15,6 @@ use App\Models\Field;
 use App\Models\Game;
 
 // TODO: UID(_id) is needed to be like xxxx.yyyy.zzzz ...
-// TODO: Mb. return auth. token for the game ? --> not needed mb. in other branch
 
 class GameController extends Controller {
     
