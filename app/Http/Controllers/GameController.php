@@ -164,7 +164,6 @@ class GameController extends Controller {
             else {
                 $game->handleMove($color);
                 
-                // TODO: mb. Return only updated cells ? 
                 return response(json_encode([
                     'id'              => $game->id,
                     'currentPlayerId' => $game->currentPlayerId,
