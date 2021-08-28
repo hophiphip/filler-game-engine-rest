@@ -13,4 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Wow, such empty
+Route::get('/', function () {
+    return view('index');
+});
