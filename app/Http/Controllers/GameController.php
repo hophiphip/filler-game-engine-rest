@@ -28,7 +28,7 @@ class GameController extends Controller {
         $width = $request->input('width');
         $height = $request->input('height');
 
-        if (($width % 2) == 0) {
+        if (($height % 2) == 0) {
             return response(json_encode(['error' => 'incorrect field size'], 400))
                     ->header('Content-Type', 'application/json');
         }

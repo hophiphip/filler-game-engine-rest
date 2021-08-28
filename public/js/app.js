@@ -8,6 +8,9 @@ import { Player } from './models/player.js';
 import { Game } from './models/game.js';
 import { colors } from './models/colors.js';
 
+// Percent bar padding for proper progress display
+const percentPadding = 6;
+
 const gameIdKey = "gameId";
 
 const newPageStateId        = 'new',
@@ -39,15 +42,31 @@ const newPageState          = document.getElementById(newPageStateId),
       gameProgressCircle2   = document.getElementById(gameProgressCircle2Id);
 
 var gameCanvasContext;
-
 var game;
 
-// TODO: Implement hide/unhide function
-newPageState.hidden  = false;
-gamePageState.hidden = true;
-// Progress bar must also be hidden
-gameProgressBar1.hidden = true;
-gameProgressBar2.hidden = true;
+hideGame();
+
+function hideGame() {
+    newPageState.hidden  = false;
+    gamePageState.hidden = true;
+    gameProgress1.hidden = true;
+    gameProgress2.hidden = true;
+    gameProgressBar1.hidden = true;
+    gameProgressBar2.hidden = true;
+    gameProgressBar1.hidden = true;
+    gameProgressBar2.hidden = true;
+}
+
+function unhideGame() {
+    newPageState.hidden  = true;
+    gamePageState.hidden = false;
+    gameProgress1.hidden = false;
+    gameProgress2.hidden = false;
+    gameProgressBar1.hidden = false;
+    gameProgressBar2.hidden = false;
+    gameProgressBar1.hidden = false;
+    gameProgressBar2.hidden = false;
+}
 
 
 // TODO: No `game over` state
@@ -182,14 +201,12 @@ function init() {
 
 function main() {
     //sessionStorage.clear();
+    
     var gameId = sessionStorage.getItem(gameIdKey);
     if (gameId == null) {
         console.log("no game id is set");
 
-        newPageState.hidden  = false;
-        gamePageState.hidden = true;
-        gameProgressBar1.hidden = true;
-        gameProgressBar2.hidden = true;
+        hideGame();
 
         newPageButton.addEventListener(
             "click",
@@ -221,10 +238,7 @@ function main() {
         );
     }
     else {
-        newPageState.hidden  = true;
-        gamePageState.hidden = false;
-        gameProgressBar1.hidden = false;
-        gameProgressBar2.hidden = false;
+        unhideGame();
 
         console.log(gameId);
 
@@ -277,9 +291,9 @@ function draw(game) {
     console.debug("Progress-2: ", game.field.playersCells[2].size / game.field.cells.length * 100);
     
     gameProgress1.style.background = game.players[1].color;
-    gameProgress1.style.width = 100 * (game.field.playersCells[1].size / game.field.cells.length) + "%";
+    gameProgress1.style.width = 100 * (game.field.playersCells[1].size / game.field.cells.length) + percentPadding + "%";
     gameProgress2.style.background = game.players[2].color;
-    gameProgress2.style.width = 100 * (game.field.playersCells[2].size / game.field.cells.length) + "%";
+    gameProgress2.style.width = 100 * (game.field.playersCells[2].size / game.field.cells.length) + percentPadding + "%";
 
     gameProgressCircle1.style.background = game.players[1].color;
     gameProgressCircle2.style.background = game.players[2].color;

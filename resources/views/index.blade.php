@@ -1,16 +1,50 @@
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="../css/style.css">
-        <link rel="stylesheet" type="text/css" href="../css/progress.css">
+        <!-- Styles -->
+        <link 
+            rel="stylesheet" 
+            type="text/css" 
+            href="{{ asset('css/style.css') }}">
+
+        <link 
+            rel="stylesheet" 
+            type="text/css" 
+            href="{{ asset('css/progress.css') }}">
 
         <!-- Favicon stuff -->
-        <link rel="apple-touch-icon" sizes="180x180" href="../image">
-        <link rel="icon" type="image/png" sizes="32x32" href="../image/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="../image/favicon-16x16.png">
-        <link rel="manifest" href="../image/site.webmanifest">
-        <link rel="mask-icon" href="../image/safari-pinned-tab.svg" color="#5bbad5">
-        <meta name="msapplication-TileColor" content="#da532c">
-        <meta name="theme-color" content="#ffffff">
+        <link 
+            rel="apple-touch-icon" 
+            sizes="180x180" 
+            href="{{ asset('image/apple-touch-icon.png') }}">
+
+        <link 
+            rel="icon" 
+            type="image/png" 
+            sizes="32x32" 
+            href="{{ asset('image/favicon-32x32.png') }}">
+
+        <link 
+            rel="icon" 
+            type="image/png" 
+            sizes="16x16" 
+            href="{{ asset('image/favicon-16x16.png') }}">
+
+        <link 
+            rel="manifest" 
+            href="{{ asset('image/site.webmanifest') }}">
+
+        <link 
+            rel="mask-icon" 
+            href="{{ asset('image/safari-pinned-tab.svg') }}" 
+            color="#5bbad5">
+
+        <meta 
+            name="msapplication-TileColor" 
+            content="#da532c">
+
+        <meta 
+            name="theme-color" 
+            content="#ffffff">
     </head>
 
     <body>
@@ -20,7 +54,7 @@
             <p class="panel-text">Select field size</p>
             
             <select id="new-select" class="panel-select">
-              <option value="value1" selected="selected">15x10</option>
+              <option value="value1" selected="selected">15x11</option>
               <option value="value2">25x15</option>
               <option value="value3">35x25</option>
             </select>
@@ -34,7 +68,6 @@
             
             <!-- Buttons -->
             <div id="game-buttons" class="game-buttons">
-                <!-- Added dynamically in main.js -->
             </div>
 
             <!-- Current player's turn -->
@@ -53,9 +86,9 @@
             </div>
         </div>
 
-        <div id="script">
+        <div id="scripts">
             <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-            <script type="module" src="../js/main.js"></script>
+            <script type="module" src="{{ asset('js/app.js') }}"></script>
         </div>
     </body>
 </html>

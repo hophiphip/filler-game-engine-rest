@@ -14,7 +14,7 @@ export const cellHeight = 50;
 
 // Field sizes
 export const newPageSelectValues = {
-    'value1' : { width: 15, height: 10 },
+    'value1' : { width: 15, height: 11 },
     'value2' : { width: 25, height: 15 },
     'value3' : { width: 35, height: 25 },
 };
