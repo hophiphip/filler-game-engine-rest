@@ -44,6 +44,7 @@ const newPageState          = document.getElementById(newPageStateId),
 var gameCanvasContext;
 var game;
 
+
 hideGame();
 
 function hideGame() {
@@ -140,6 +141,9 @@ function addGameButtons() {
 }
 
 function init() {
+    // Default color for border corners
+    document.body.style["background"] = "linear-gradient(45deg, #000000A0, #000000A0)";
+    
     if (gamePageCanvas.getContext) {
         gameCanvasContext  = gamePageCanvas.getContext("2d");
         return null;
@@ -232,10 +236,16 @@ function draw(game) {
 
     // Display which player turn is right now
     gamePlayerState.innerHTML = "Player's " + game.currentPlayerId + " turn";
-    // TODO: Make black background (so it won't be necessary to change white to black)
     gamePlayerState.style.color = 
         game.players[game.currentPlayerId].color === '#ffffff' ?
         '#000000' : game.players[game.currentPlayerId].color;
+   
+    // Set border corners colors
+    document.body.style["background"] = "linear-gradient(45deg, " 
+                                        + game.players[1].color 
+                                        + ", " 
+                                        + game.players[2].color 
+                                        + ")";
 
     // Update progress bar
     console.debug("Progress-1: ", game.field.playersCells[1].size / game.field.cells.length * 100);
