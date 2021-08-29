@@ -236,15 +236,13 @@ function draw(game) {
 
     // Display which player turn is right now
     gamePlayerState.innerHTML = "Player's " + game.currentPlayerId + " turn";
-    gamePlayerState.style.color = 
-        game.players[game.currentPlayerId].color === '#ffffff' ?
-        '#000000' : game.players[game.currentPlayerId].color;
+    gamePlayerState.style.color = game.players[game.currentPlayerId].color;
    
     // Set border corners colors
     document.body.style["background"] = "linear-gradient(45deg, " 
-                                        + game.players[1].color 
+                                        + game.players[1].color + "A0" 
                                         + ", " 
-                                        + game.players[2].color 
+                                        + game.players[2].color + "A0"
                                         + ")";
 
     // Update progress bar

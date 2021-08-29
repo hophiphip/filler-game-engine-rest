@@ -56,7 +56,8 @@ body {
 #game { 
   width: 100%; 
   text-align: center; 
-  margin: auto; 
+  /*margin: auto;*/
+  margin-top: 7%; /* a workaround */
 }
 
 /* Align contents horizontally */
@@ -74,12 +75,12 @@ body {
   /* 
    * These styles are assigned dynamically in JS:
    *
-  border: 30px solid #EF0000;
-  border-right-color: #AF0000;
-  border-bottom-color: #EF0000;
-  border-left-color: #FF0000;
-  *
-  */
+   *   border: 30px solid   #EF0000;
+   *   border-right-color:  #AF0000;
+   *   border-bottom-color: #EF0000;
+   *   border-left-color:   #FF0000;
+   *
+   */
 
   transform: rotate(45deg);
 
