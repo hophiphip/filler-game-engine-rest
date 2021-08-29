@@ -70,7 +70,6 @@ function unhideGame() {
 
 
 // TODO: No `game over` state
-// TODO: Game doesn't need to be global ..or does it?
 
 function assignButtonColors(button, color) {
     if (Game.isUsefulColor(game, color)) {
@@ -106,7 +105,7 @@ function addGameButtons() {
                             if (json) {
                                 console.debug(json);
 
-                                // Update the game
+                                // update the game
                                 game.currentPlayerId = json.currentPlayerId;
                                 game.winnerPlayerId = json.winnerPlayerId;
                                 game.players = {
@@ -141,63 +140,14 @@ function addGameButtons() {
 }
 
 function init() {
-      // TODO: Not the best way to handle errors.. 
-      var errors = "";
-      if (newPageState == null) {
-          errors += "[" + newPageStateId + "]";
-      }
-      if (newPageButton == null) {
-          errors += "[" + newPageButtonId + "]"; 
-      }
-      if (newPageSelect == null) {
-          errors += "[" + newPageSelectId + "]"; 
-      }
-      if (gamePageState == null) {
-          errors += "[" + gamePageStateId + "]"; 
-      }
-      if (gamePageCanvas == null) {
-          errors += "[" + gamePageCanvasId + "]";
-      } else {
-          gamePageCanvas.width  = fieldWidth;
-          gamePageCanvas.height = fieldHeight;
-      }
-      if (gameButtons == null) {
-          errors += "[" + gameButtonsId + "]";
-      }
-      if (gamePlayerState == null) {
-          errors += "[" + gamePlayerStateId + "]";
-      }
-      if (gameProgress1 == null) {
-          errors += "[" + gameProgress1Id + "]";
-      }
-      if (gameProgress2 == null) {
-          errors += "[" + gameProgress2Id + "]";
-      }
-      if (gameProgressBar1 == null) {
-          errors += "[" + gameProgressBar1Id + "]";
-      }
-      if (gameProgressBar2 == null) {
-          errors += "[" + gameProgressBar2Id + "]";
-      }
-      if (gameProgressCircle1 == null) {
-          errors += "[" + gameProgressCircle1Id + "]";
-      }
-      if (gameProgressCircle2 == null) {
-          errors += "[" + gameProgressCircle2Id + "]";
-      }
-
-      if (gamePageCanvas.getContext) {
-          gameCanvasContext  = gamePageCanvas.getContext("2d");
-      } else {
-          errors += "[canvas:" + gamePageCanvasId + " has no context]";
-      }
-
-      if (errors === "") {
-            return null;
-      } else {
-            return Error("no element with id '" + errors + "'"); 
-      }
+    if (gamePageCanvas.getContext) {
+        gameCanvasContext  = gamePageCanvas.getContext("2d");
+        return null;
+    } else {
+        return Error("canvas:" + gamePageCanvasId + " has no context"); 
+    }
 }
+
 
 function main() {
     //sessionStorage.clear();
@@ -251,7 +201,8 @@ function main() {
                 
                 // change canvas size to fit game field
                 gamePageCanvas.width  = cellWidth * game.field.width + 100; //fieldWidth;
-                gamePageCanvas.height = cellHeight * game.field.height + 100 - ((~~game.field.height / 2) * cellHeight); //fieldHeight;
+                gamePageCanvas.height = cellHeight * game.field.height + 100 
+                                        - ((~~game.field.height / 2) * cellHeight); //fieldHeight;
                
                 console.log("Canvas width: ", gamePageCanvas.width,
                             ", Canvas height: ", gamePageCanvas.height);
