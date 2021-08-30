@@ -12,25 +12,6 @@ services:
         depends_on:
             - redis
             - mongodb
-    redis:
-        image: 'redis:alpine'
-        # Docker daemon, might be killed by the kernel OOM(Out Of Memory Exceptions) killer
-        deploy:
-            restart_policy:
-                condition: on-failure
-                delay: 5s
-                max_attempts: 3
-                window: 120s
-        ports:
-            - '6379:6379'
-        volumes:
-            - 'redisdata:/data'
-        networks:
-            - appnet
-        healthcheck:
-          test: ["CMD", "redis-cli", "ping"]
-          retries: 3
-          timeout: 5s
     mongodb:
         image: 'mongo'
         restart: always
