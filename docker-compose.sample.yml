@@ -3,7 +3,6 @@ services:
     laravel:
         build: .
         ports:
-            # Map TCP port 8000 in the container to port 8080 on the Docker host
             - '8080:8000'
         volumes:
             - '.:/var/www/html'

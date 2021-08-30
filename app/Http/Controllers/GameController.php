@@ -14,11 +14,13 @@ use App\Models\Cell;
 use App\Models\Field;
 use App\Models\Game;
 
-// TODO: UID(_id) is needed to be like xxxx.yyyy.zzzz ...
-
 class GameController extends Controller {
-    
-    // POST - new game
+    /**
+     * Create a new game.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request) {
         $request->validate([
             'width' => 'required|numeric|gt:2',
@@ -79,23 +81,20 @@ class GameController extends Controller {
         ]), 201)->header('Content-Type', 'application/json');
     }
 
-    // GET - game same state
+    /**
+     * Get game via ID.
+     *
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show($id) {
-        // TODO: Improve incorect parameters handler
         if ($id == null) {
             return response(json_encode([
                 "error" => "incorrect request parameters",
             ]), 400)->header('Content-Type', 'application/json');
         }
 
-
         $game = Game::find($id);
-        
-        // NOTE: This will fail, will need ArrayAccess or recursive FromNamedArray trait
-        $field = Field::fromArray($game->field); 
-        Log::channel('stderr')->info($field->cells[1]);
-        Log::channel('stderr')->info($field->cells[1]["color"]);
-        //Log::channel('stderr')->info($field->cells[1]->color);
 
         if ($game) {
             return response(json_encode([
@@ -112,7 +111,13 @@ class GameController extends Controller {
         }
     }
 
-    // PUT - update game state / make a player move
+    /**
+     * Make a player move.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $id) {
         $validator = Validator::make($request->all(), [ 
             'playerId' => 'required|numeric|max:2|min:1',
@@ -122,8 +127,6 @@ class GameController extends Controller {
             ],
         ]);
 
-        // TODO: Improve incorect parameters handler
-        // Handle incorrect parameters
         if ($validator->fails()) {    
             return response()->json([
                 $validator->messages(),
