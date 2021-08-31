@@ -18,7 +18,7 @@ class GameController extends Controller {
     /**
      * Create a new game.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request contains `width` and `height` of the game field 
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request) {
@@ -84,7 +84,7 @@ class GameController extends Controller {
     /**
      * Get game via ID.
      *
-     * @param  string  $id
+     * @param  string  $id unique game Id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id) {
@@ -114,8 +114,8 @@ class GameController extends Controller {
     /**
      * Make a player move.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $id
+     * @param  \Illuminate\Http\Request  $request contains `playerId` and player `color`
+     * @param  string  $id unique game Id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id) {
