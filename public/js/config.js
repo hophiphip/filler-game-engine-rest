@@ -1,6 +1,4 @@
-export const apiHost = "http://localhost";
-export const apiPort = "8000";
-export const api     = apiHost + ":" + apiPort + "/api";
+export const host = window.location.origin;
 
 // Default size for the canvas
 export const fieldWidth   = 1200;

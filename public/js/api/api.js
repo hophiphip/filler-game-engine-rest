@@ -1,14 +1,14 @@
-import { api } from '../config.js'; 
+import { host } from '../config.js'; 
 
 // TODO: Handle other http errors
 
 export async function newGame(width, height) {
-    console.debug("called POST: '/game'");
+    console.debug("called POST: '/api/game'");
 
     try {
         const {data:response} = await axios({
             method: 'POST',
-            url: api + '/game',
+            url: host + '/api/game',
             withCredentials: false,
             headers: {
                 'Accept' : 'application/json',
@@ -36,12 +36,12 @@ export async function newGame(width, height) {
 }
 
 export async function getGame(id) {
-    console.debug("called GET: '/game/'" + id);
+    console.debug("called GET: '/api/game/'" + id);
     
     try {
         const {data:response} = await axios({
             method: 'GET',
-            url: api + '/game/' + id, 
+            url: host + '/api/game/' + id, 
             withCredentials: false,
             headers: {
                 'Accept' : 'application/json',
@@ -71,12 +71,12 @@ export async function getGame(id) {
 }
 
 export async function updateGame(game, color) {
-    console.debug("called PUT: '/game/'" + game.id);
+    console.debug("called PUT: '/api/game/'" + game.id);
 
     try {
         const {data:response} = await axios({
             method: 'PUT',
-            url: api + '/game/' + game.id,
+            url: host + '/api/game/' + game.id,
             withCredentials: false,
             headers: {
                 'Accept' : 'application/json',
