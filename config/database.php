@@ -106,6 +106,11 @@ return [
             ],
         ],
 
+        'mongodb_url' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGO_DB_URI', 'mongodb+srv://username:password@<atlas-cluster-uri>/myappdb?retryWrites=true&w=majority'),
+            'database' => 'MONGO_DB_DATABASE',
+        ],
 
     ],
 
