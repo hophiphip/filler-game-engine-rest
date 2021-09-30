@@ -88,7 +88,7 @@
             </div>
 
             <div id="scripts">
-                <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+                <script src="//unpkg.com/axios/dist/axios.min.js"></script>
                 <script type="module" src="{{ asset('js/app.js') }}"></script>
             </div>
         </div>
