@@ -4,38 +4,38 @@
         <link 
             rel="stylesheet" 
             type="text/css" 
-            href="{{ asset('css/style.css') }}">
+            href="../css/style.css">
 
         <link 
             rel="stylesheet" 
             type="text/css" 
-            href="{{ asset('css/progress.css') }}">
+            href="../css/progress.css">
 
         <!-- Favicon stuff -->
         <link 
             rel="apple-touch-icon" 
             sizes="180x180" 
-            href="{{ asset('image/apple-touch-icon.png') }}">
+            href="../image/apple-touch-icon.png">
 
         <link 
             rel="icon" 
             type="image/png" 
             sizes="32x32" 
-            href="{{ asset('image/favicon-32x32.png') }}">
+            href="../image/favicon-32x32.png">
 
         <link 
             rel="icon" 
             type="image/png" 
             sizes="16x16" 
-            href="{{ asset('image/favicon-16x16.png') }}">
+            href="../image/favicon-16x16.png">
 
         <link 
             rel="manifest" 
-            href="{{ asset('image/site.webmanifest') }}">
+            href="../image/site.webmanifest">
 
         <link 
             rel="mask-icon" 
-            href="{{ asset('image/safari-pinned-tab.svg') }}" 
+            href="../image/safari-pinned-tab.svg" 
             color="#5bbad5">
 
         <meta 
@@ -89,7 +89,7 @@
 
             <div id="scripts">
                 <script src="//unpkg.com/axios/dist/axios.min.js"></script>
-                <script type="module" src="{{ asset('js/app.js') }}"></script>
+                <script type="module" src="../js/app.js"></script>
             </div>
         </div>
     </body>
