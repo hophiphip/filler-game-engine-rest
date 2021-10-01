@@ -55,11 +55,11 @@ class GameController extends Controller {
         $field->cells[$topRightIndex]->playerId = $playerTwo->id;
         $field->cells[$topRightIndex]->color = $playerTwo->color;
 
-        // Neighbor cells must differ from initial player cells
+        // Neighbour cells must differ from initial player cells
         //
-        // 1st player's neighbor cell
+        // 1st player's neighbour cell
         $field->cells[$bottomLeftIndex - $field->width + 1]->color = $colors[3];
-        // 2nd player's neighbor cell
+        // 2nd player's neighbour cell
         $field->cells[$topRightIndex + $field->width - 1]->color = $colors[4];
 
         $game = Game::create([
@@ -151,6 +151,7 @@ class GameController extends Controller {
                 ]), 403)->header('Content-Type', 'application/json');
             }
             
+            // TODO: This must be done in Game::handleMove
             // Check & Handle incorrect color
             else if (
                 // Players can't have same color
@@ -165,6 +166,10 @@ class GameController extends Controller {
 
             // Handle player move
             else {
+                // Just to make sure that color is in hex 
+                // TODO: Verify correctness 
+                //$color = Color::colors[Colors::colorsTable[$color]];
+
                 $game->handleMove($color);
                 
                 return response(json_encode([

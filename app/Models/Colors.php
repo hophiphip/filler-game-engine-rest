@@ -3,7 +3,7 @@
 namespace App\Models;
 
 /**
- *  This class provides helpful methods for working with colors  
+ *  This class provides helpful methods for working with colors. 
  */
 final class Colors {
     /**

@@ -6,27 +6,39 @@ use Jenssegers\Mongodb\Eloquent\Model;
 
 use Illuminate\Support\Facades\Log;
 
-
+/**
+ *  This class stores single game representation.
+ */
 class Game extends Model {
+    /**
+     *  @var string $collection contains collection name
+     */
     protected $collection = 'game_collection';
 
+    /**
+     *  @var array $fillable contains collection fields names
+     */
     protected $fillable = [
-        // 'Public' - part of the model
         'players',
         'field',
         'currentPlayerId',
         'winnerPlayerId',
 
-        // 'Private' - only for API usage
-        // Stores players progres (array of player cells indexes)
         'stats'  
     ];
 
-    // Updates model by itself
-    // get -> update -> set
+    /**
+     *  Handle single game move
+     *
+     *  @param string $_color player selected color
+     *
+     *  @return void
+     */
     public function handleMove(string $_color) {
         $color = strtolower($_color);
 
+        // get -> update -> set
+        
         // GET
         $currentPlayerId = $this->currentPlayerId;
         $players = $this->players;
