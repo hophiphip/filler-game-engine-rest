@@ -32,4 +32,20 @@ class Player {
         $this->id = $id;
         $this->color = $color;
     }
+
+
+    /**
+     *  Return next player id.
+     *
+     *  @param int $currentPlayerId current player in game id
+     *
+     *  @return int
+     */
+    public function nextPlayerId(int $currentPlayerId): int {
+        if ($currentPlayerId != 1 && $currentPlayerId != 2) {
+            return -1;
+        }
+
+        return ($currentPlayerId % 2) + 1;
+    }
 }

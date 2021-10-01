@@ -115,7 +115,6 @@ class Game extends Model {
 
         // update field : cells color
         foreach ($stats[$currentPlayerId] as $cellIndex) {
-            // NOTE: cell[i] is still an array
             $field->cells[$cellIndex]["playerId"] = $currentPlayerId;
             $field->cells[$cellIndex]["color"] = $color;
         }

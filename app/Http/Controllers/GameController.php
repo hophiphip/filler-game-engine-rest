@@ -152,10 +152,6 @@ class GameController extends Controller {
             }
             // Handle player move
             else {
-                // Just to make sure that color is in hex 
-                // TODO: Verify correctness 
-                //$color = Color::colors[Colors::colorsTable[$color]];
-
                 $updateStatus = $game->handleMove($color);
 
                 if ($updateStatus == false) {
