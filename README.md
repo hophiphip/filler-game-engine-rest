@@ -12,7 +12,11 @@ cp .env.sample .env
 cp docker-compose.sample.yml docker-compose.yml
 ```
   2. Update environment (`.env` file) variables (Optional).
-  3. Run it.
+  3. Update `APP_KEY` (Optional).
+```bash
+php artisan key:generate
+```
+  5. Run it.
 ```bash
 docker-compose up
 ```
