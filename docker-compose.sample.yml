@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+   laravel:
+        build: 
+            context: .
+            dockerfile: docker/app/Dockerfile
+        env_file: 
+            - .env.compose
+        ports: 
+            - "${APP_PORT}:8000"
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - appnet
+        depends_on:
+            - mongodb
+   mongodb:
+        image: 'mongo'
+        restart: always
+        env_file: 
+            - .env.compose
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: '${MONGO_DB_USERNAME}'
+            MONGO_INITDB_ROOT_PASSWORD: '${MONGO_DB_PASSWORD}'
+            MONGO_INITDB_DATABASE: '${MONGO_DB_DATABASE}'
+        volumes:
+          - 'mongodata:/data/db'
+        networks:
+            - appnet
+        ports:
+            - '${MONGO_DB_PORT}:${MONGO_DB_PORT}'
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh mongodb:'${MONGO_DB_PORT}' --quiet
+            retries: 3
+            timeout: 10s
+networks:
+   appnet:
+        driver: bridge
+volumes:
+   mongodata:
+        driver: local       
+        external: false
