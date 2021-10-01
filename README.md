@@ -7,6 +7,8 @@ https://fllr.herokuapp.com/
   1. Create local config & docker-compose files.
 ```bash
 cp .env.sample .env
+```
+```bash
 cp docker-compose.sample.yml docker-compose.yml
 ```
   2. Update environment (`.env` file) variables (Optional).
