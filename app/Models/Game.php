@@ -6,6 +6,8 @@ use Jenssegers\Mongodb\Eloquent\Model;
 
 use Illuminate\Support\Facades\Log;
 
+use App\Models\Colors;
+
 /**
  *  This class stores single game representation.
  */
@@ -28,24 +30,37 @@ class Game extends Model {
     ];
 
     /**
-     *  Handle single game move
+     *  Handle single game move 
+     *      and return `true` in case of success
+     *      otherwise return `false`.
      *
      *  @param string $_color player selected color
      *
-     *  @return void
+     *  @return bool
      */
-    public function handleMove(string $_color) {
+    public function handleMove(string $_color): bool {
         $color = strtolower($_color);
 
-        // get -> update -> set
-        
-        // GET
         $currentPlayerId = $this->currentPlayerId;
         $players = $this->players;
         $field = Field::fromArray($this->field);
         $stats = $this->stats;
 
-        // UPDATE
+        // Handle incorrect player moves
+        if (
+            // Players can't have same color
+            Colors::compareColors(
+                $color, 
+                $players[($currentPlayerId % 2) + 1]['color']) ||
+                
+            // Player can't choose own color
+            Colors::compareColors(
+                $color, 
+                $players[$currentPlayerId]['color']))
+        {
+            return false;
+        }
+
         // update player color
         $players[$currentPlayerId]["color"] = $color;
 
@@ -122,5 +137,7 @@ class Game extends Model {
         }
         
         $this->save(); 
+
+        return true;
     }
 }

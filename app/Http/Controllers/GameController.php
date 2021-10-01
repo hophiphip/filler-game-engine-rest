@@ -150,28 +150,20 @@ class GameController extends Controller {
                     "error" => "provided player can't move right now",
                 ]), 403)->header('Content-Type', 'application/json');
             }
-            
-            // TODO: This must be done in Game::handleMove
-            // Check & Handle incorrect color
-            else if (
-                // Players can't have same color
-                Colors::compareColors($color, $game->players[($game->currentPlayerId % 2) + 1]['color']) ||
-                // Player can't choose own color
-                Colors::compareColors($color, $game->players[$game->currentPlayerId]['color']))
-            {
-                return response(json_encode([
-                    "error" => "provided player can't choose this color",
-                ]), 409)->header('Content-Type', 'application/json');
-            }
-
             // Handle player move
             else {
                 // Just to make sure that color is in hex 
                 // TODO: Verify correctness 
                 //$color = Color::colors[Colors::colorsTable[$color]];
 
-                $game->handleMove($color);
-                
+                $updateStatus = $game->handleMove($color);
+
+                if ($updateStatus == false) {
+                    return response(json_encode([
+                        "error" => "provided player can't choose this color",
+                    ]), 409)->header('Content-Type', 'application/json');
+                }
+
                 return response(json_encode([
                     'id'              => $game->id,
                     'currentPlayerId' => $game->currentPlayerId,
