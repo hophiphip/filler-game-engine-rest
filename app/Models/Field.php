@@ -213,23 +213,6 @@ class Field {
 
     /** 
      * Checks if `other` cell (neighbour cell of `current` cell) 
-     *  can be added to player owned cells.    
-     *
-     *  @param int $currentIndex current cell index
-     *  @param int $otherIndex other cell index
-     *  @param string $playerColor current player color    
-     *  
-     *  @return bool
-     */
-    public function isAssignable(int $currentIndex, int $otherIndex, string $playerColor): bool {
-        return $this->isValidIndex($currentIndex) &&
-               $this->isValidIndex($otherIndex)   &&
-               0 == $this->cells[$otherIndex]["playerId"] &&
-               Colors::compareColors($playerColor, $this->cells[$otherIndex]["color"]);
-    }
-    
-    /** 
-     * Checks if `other` cell (neighbour cell of `current` cell) 
      *  donesn't belong to player stats cells.    
      *
      *  @param int $currentIndex current cell index
@@ -241,5 +224,20 @@ class Field {
         return $this->isValidIndex($currentIndex) &&
                $this->isValidIndex($otherIndex)   &&
                0 == $this->cells[$otherIndex]["playerId"];
+    }
+
+    /** 
+     * Checks if `other` cell (neighbour cell of `current` cell) 
+     *  can be added to player owned cells.    
+     *
+     *  @param int $currentIndex current cell index
+     *  @param int $otherIndex other cell index
+     *  @param string $playerColor current player color    
+     *  
+     *  @return bool
+     */
+    public function isAssignable(int $currentIndex, int $otherIndex, string $playerColor): bool {
+        return $this->isNotPlayerCell($currentIndex, $otherIndex) &&
+               Colors::compareColors($playerColor, $this->cells[$otherIndex]["color"]);
     }
 }
