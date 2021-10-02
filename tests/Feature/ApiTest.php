@@ -279,6 +279,34 @@ class ApiTest extends TestCase
 
 
     /**
+     * Perform PUT request (with handling HTTP 429 error)
+     *
+     * @param arrray $params PUT request parameters
+     * @param int $timeout timeout in microseconds
+     *
+     * @return Illuminate\Testing\TestResponse
+     */
+    public function performPut(array $params, int $timeout)
+    {
+        $backupResponse = $this->json('PUT', '/api/game/' . $params['id'], [
+            'playerId' => $params['currentPlayerId'],
+            'color' => $params['nextColor'], 
+        ]);
+
+        // handle timeout in case of too many requests
+        while ($backupResponse->status() == 429) {
+            $backupResponse = $this->json('PUT', '/api/game/' . $params['id'], [
+                'playerId' => $params['currentPlayerId'],
+                'color' => $params['nextColor'], 
+            ]);
+
+            usleep($timeout);
+        };
+
+        return $backupResponse;
+    }
+
+    /**
      * Trying to complete a game (not optimal way).
      *
      * @depends testPutGameMoveWithUnsupportedColor
@@ -296,13 +324,13 @@ class ApiTest extends TestCase
             $field = Field::fromArray($response['field']);
             $colorStats = array();
 
-            // TODO: We do not need to user isNotPlayerCell as we check current index twice this way
+            // NOTE: This loop takes a lot of time:
             foreach ($response['field']['cells'] as $i => $cell) {
                 if ($cell['playerId'] == $response['currentPlayerId']) {
                     // left
                     if (!($field->hasNoLeftCell($i))) {
                         $leftIndex = $i - $field->width;
-                        if ($field->isNotPlayerCell($i, $leftIndex)) {
+                        if ($field->isNotPlayerCell($leftIndex)) {
                             $key = Colors::$colorsTable[$field->cells[$leftIndex]["color"]]; 
                             if (array_key_exists($key, $colorStats)) {
                                 $colorStats[$key] += 1;
@@ -315,7 +343,7 @@ class ApiTest extends TestCase
                     // top
                     if (!($field->hasNoTopCell($i))) {
                         $topIndex = $i - $field->width + 1;
-                        if ($field->isNotPlayerCell($i, $topIndex)) {
+                        if ($field->isNotPlayerCell($topIndex)) {
                             $key = Colors::$colorsTable[$field->cells[$topIndex]["color"]]; 
                             if (array_key_exists($key, $colorStats)) {
                                 $colorStats[$key] += 1;
@@ -328,7 +356,7 @@ class ApiTest extends TestCase
                     // right
                     if (!($field->hasNoRightCell($i))) {
                         $rightIndex = $i + $field->width;
-                        if ($field->isNotPlayerCell($i, $rightIndex)) {
+                        if ($field->isNotPlayerCell($rightIndex)) {
                             $key = Colors::$colorsTable[$field->cells[$rightIndex]["color"]]; 
                             if (array_key_exists($key, $colorStats)) {
                                 $colorStats[$key] += 1;
@@ -341,7 +369,7 @@ class ApiTest extends TestCase
                     // bottom
                     if (!($field->hasNoBottomCell($i))) {
                         $bottomIndex = $i + $field->width - 1;
-                        if ($field->isNotPlayerCell($i, $bottomIndex)) {
+                        if ($field->isNotPlayerCell($bottomIndex)) {
                             $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
                             if (array_key_exists($key, $colorStats)) {
                                 $colorStats[$key] += 1;
@@ -353,13 +381,6 @@ class ApiTest extends TestCase
                 }
             }
 
-            //foreach ($colorStats as $key => $val) {
-            //    print($key);
-            //    print(" ");
-            //    print($val);
-            //    print("\n");
-            //}
-
             // Get rid of player colors
             $colorStats[Colors::$colorsTable[$response['players'][1]['color']]] = 0;
             $colorStats[Colors::$colorsTable[$response['players'][2]['color']]] = 0;
@@ -367,29 +388,15 @@ class ApiTest extends TestCase
             // Get the most popular color
             $nextColor = Colors::$colors[array_search(max($colorStats),$colorStats)];
 
-            //print($nextColor);
-            //print("\n");
-            //print($response['players'][1]['color']);
-            //print("\n");
-            //print($response['players'][2]['color']);
-            //print("\n");
-
-            // prevent too many connections
-            do {
-                $response = $this->json('PUT', '/api/game/' . $response['id'], [
-                    'playerId' => $response['currentPlayerId'],
-                    'color' => $nextColor, 
-                ]);
-
-                // sleep for a second 
-                usleep(100000);
-            } while ($response->status() == 429)
+            // NOTE: this call blocks
+            $response = $this->performPut([
+                'id' => $response['id'],
+                'currentPlayerId' => $response['currentPlayerId'],
+                'nextColor' => $nextColor,
+            ], 100000);
 
             $response
                 ->assertStatus(201);
-
-            // sleep for half a second 
-            //usleep(500000);
         }
 
         return [

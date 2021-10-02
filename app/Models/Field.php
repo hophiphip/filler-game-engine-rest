@@ -220,10 +220,9 @@ class Field {
      *
      *  @return bool
      */
-    public function isNotPlayerCell(int $currentIndex, int $otherIndex): bool {
-        return $this->isValidIndex($currentIndex) &&
-               $this->isValidIndex($otherIndex)   &&
-               0 == $this->cells[$otherIndex]["playerId"];
+    public function isNotPlayerCell(int $index): bool {
+        return $this->isValidIndex($index) &&
+               0 == $this->cells[$index]["playerId"];
     }
 
     /** 
@@ -237,7 +236,8 @@ class Field {
      *  @return bool
      */
     public function isAssignable(int $currentIndex, int $otherIndex, string $playerColor): bool {
-        return $this->isNotPlayerCell($currentIndex, $otherIndex) &&
+        return $this->isValidIndex($currentIndex) &&
+               $this->isNotPlayerCell($otherIndex) &&
                Colors::compareColors($playerColor, $this->cells[$otherIndex]["color"]);
     }
 }
