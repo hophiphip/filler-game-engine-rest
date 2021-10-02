@@ -41,7 +41,7 @@ class Player {
      *
      *  @return int
      */
-    public function nextPlayerId(int $currentPlayerId): int {
+    public static function nextPlayerId(int $currentPlayerId): int {
         if ($currentPlayerId != 1 && $currentPlayerId != 2) {
             return -1;
         }

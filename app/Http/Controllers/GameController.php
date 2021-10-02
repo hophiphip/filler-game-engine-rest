@@ -31,7 +31,7 @@ class GameController extends Controller {
         $height = $request->input('height');
 
         if (($height % 2) == 0) {
-            return response(json_encode(['error' => 'incorrect field size'], 400))
+            return response(json_encode(['error' => 'incorrect field size']), 400)
                     ->header('Content-Type', 'application/json');
         }
 

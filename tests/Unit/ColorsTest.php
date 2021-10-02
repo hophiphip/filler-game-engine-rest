@@ -7,6 +7,11 @@ use App\Models\Colors;
 
 class ColorsTest extends TestCase
 {
+    /**
+     * Test color comparison function.
+     *
+     * @return void
+     */
     public function testCompareColors()
     {
         $this->assertTrue(Colors::compareColors('#FFFFFF', '#ffffff'));
@@ -21,6 +26,11 @@ class ColorsTest extends TestCase
         $this->assertTrue(!Colors::compareColors('white', '#000000'));
     }
 
+    /**
+     *  Test game colors matching regex.
+     *
+     *  @return void
+     */
     public function testColorsRegex() {
         foreach (Colors::$colorsTable as $color => $_) {
             $this->assertTrue(preg_match(Colors::$colorsRegex, $color) == 1);

@@ -84,4 +84,28 @@ final class Colors {
 
         return self::$colorsTable[$r] == self::$colorsTable[$l];
     }
+
+    /**
+     *  Returns allowed color for player next move.
+     *
+     *  @param string color1 first color
+     *  @param string color2 second color
+     *
+     *  @return string
+     */
+    public static function allowedColor(string $color1, string $color2)
+    {
+        if ($color1 == null || $color2 == null) {
+            return null;
+        }
+
+        foreach(Colors::$colors as $i => $color) {
+            if (Colors::compareColors($color1, $color) == false &&
+                Colors::compareColors($color2, $color) == false) {
+                return $color;
+            }
+        }
+
+        return null;
+    }
 }
