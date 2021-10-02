@@ -285,7 +285,7 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testCompleteAGameSlow(array $putResponse): array
+    public function testCompleteAGame(array $putResponse): array
     {
         $response = $this->json('GET', '/api/game/' . $putResponse['id']);
 
@@ -294,42 +294,102 @@ class ApiTest extends TestCase
 
         while ($response['winnerPlayerId'] == 0) {
             $field = Field::fromArray($response['field']);
-            $colorStats = [];
+            $colorStats = array();
 
+            // TODO: We do not need to user isNotPlayerCell as we check current index twice this way
             foreach ($response['field']['cells'] as $i => $cell) {
                 if ($cell['playerId'] == $response['currentPlayerId']) {
                     // left
                     if (!($field->hasNoLeftCell($i))) {
                         $leftIndex = $i - $field->width;
-                        if ($field->isNotPlayerCell($leftIndex) {
+                        if ($field->isNotPlayerCell($i, $leftIndex)) {
+                            $key = Colors::$colorsTable[$field->cells[$leftIndex]["color"]]; 
+                            if (array_key_exists($key, $colorStats)) {
+                                $colorStats[$key] += 1;
+                            } else {
+                                $colorStats[$key] = 1;
+                            }
                         }
                     }
                     
                     // top
                     if (!($field->hasNoTopCell($i))) {
                         $topIndex = $i - $field->width + 1;
-                        if ($field->isNotPlayerCell($topIndex) {
+                        if ($field->isNotPlayerCell($i, $topIndex)) {
+                            $key = Colors::$colorsTable[$field->cells[$topIndex]["color"]]; 
+                            if (array_key_exists($key, $colorStats)) {
+                                $colorStats[$key] += 1;
+                            } else {
+                                $colorStats[$key] = 1;
+                            }
                         }
                     }
                     
                     // right
                     if (!($field->hasNoRightCell($i))) {
                         $rightIndex = $i + $field->width;
-                        if ($field->isNotPlayerCell($rightIndex) {
+                        if ($field->isNotPlayerCell($i, $rightIndex)) {
+                            $key = Colors::$colorsTable[$field->cells[$rightIndex]["color"]]; 
+                            if (array_key_exists($key, $colorStats)) {
+                                $colorStats[$key] += 1;
+                            } else {
+                                $colorStats[$key] = 1;
+                            }
                         }
                     }
                     
                     // bottom
                     if (!($field->hasNoBottomCell($i))) {
                         $bottomIndex = $i + $field->width - 1;
-                        if ($field->isNotPlayerCell($bottomIndex) {
+                        if ($field->isNotPlayerCell($i, $bottomIndex)) {
+                            $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
+                            if (array_key_exists($key, $colorStats)) {
+                                $colorStats[$key] += 1;
+                            } else {
+                                $colorStats[$key] = 1;
+                            }
                         }
                     }
                 }
             }
 
+            //foreach ($colorStats as $key => $val) {
+            //    print($key);
+            //    print(" ");
+            //    print($val);
+            //    print("\n");
+            //}
 
-            break;
+            // Get rid of player colors
+            $colorStats[Colors::$colorsTable[$response['players'][1]['color']]] = 0;
+            $colorStats[Colors::$colorsTable[$response['players'][2]['color']]] = 0;
+
+            // Get the most popular color
+            $nextColor = Colors::$colors[array_search(max($colorStats),$colorStats)];
+
+            //print($nextColor);
+            //print("\n");
+            //print($response['players'][1]['color']);
+            //print("\n");
+            //print($response['players'][2]['color']);
+            //print("\n");
+
+            // prevent too many connections
+            do {
+                $response = $this->json('PUT', '/api/game/' . $response['id'], [
+                    'playerId' => $response['currentPlayerId'],
+                    'color' => $nextColor, 
+                ]);
+
+                // sleep for a second 
+                usleep(100000);
+            } while ($response->status() == 429)
+
+            $response
+                ->assertStatus(201);
+
+            // sleep for half a second 
+            //usleep(500000);
         }
 
         return [
