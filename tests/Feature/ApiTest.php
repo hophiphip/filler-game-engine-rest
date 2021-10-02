@@ -7,6 +7,7 @@ use Tests\TestCase;
 
 use App\Models\Colors;
 use App\Models\Player;
+use App\Models\Field;
 
 class ApiTest extends TestCase
 {
@@ -142,25 +143,25 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testPutGameMove(array $getRequest): array
+    public function testPutGameMove(array $getResponse): array
     {
         $allowedColor = Colors::allowedColor(
-            $getRequest['players'][1]['color'],
-            $getRequest['players'][2]['color']
+            $getResponse['players'][1]['color'],
+            $getResponse['players'][2]['color']
         );
         
         $this->assertTrue($allowedColor != null);
 
-        $response = $this->json('PUT', '/api/game/' . $getRequest['id'], [
-            'playerId' => $getRequest['currentPlayerId'],
+        $response = $this->json('PUT', '/api/game/' . $getResponse['id'], [
+            'playerId' => $getResponse['currentPlayerId'],
             'color' => $allowedColor, 
         ]);
 
         $response
             ->assertStatus(201)
             ->assertJson([
-                'id' => $getRequest['id'],
-                'currentPlayerId' => Player::nextPlayerId($getRequest['currentPlayerId']),
+                'id' => $getResponse['id'],
+                'currentPlayerId' => Player::nextPlayerId($getResponse['currentPlayerId']),
             ]);
 
         return [
@@ -177,11 +178,11 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testPutGameMoveWithCurrentPlayerColor(array $putRequest): array
+    public function testPutGameMoveWithCurrentPlayerColor(array $putResponse): array
     {
-        $response = $this->json('PUT', '/api/game/' . $putRequest['id'], [
-            'playerId' => $putRequest['currentPlayerId'],
-            'color' => $putRequest['players'][$putRequest['currentPlayerId']]['color'], 
+        $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
+            'playerId' => $putResponse['currentPlayerId'],
+            'color' => $putResponse['players'][$putResponse['currentPlayerId']]['color'], 
         ]);
 
         $response
@@ -191,9 +192,9 @@ class ApiTest extends TestCase
             ]);
         
         return [
-            'id' => $putRequest['id'],
-            'players' => $putRequest['players'],
-            'currentPlayerId' => $putRequest['currentPlayerId'],
+            'id' => $putResponse['id'],
+            'players' => $putResponse['players'],
+            'currentPlayerId' => $putResponse['currentPlayerId'],
         ];
     }
     
@@ -204,11 +205,11 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testPutGameMoveWithOtherPlayerColor(array $putRequest): array
+    public function testPutGameMoveWithOtherPlayerColor(array $putResponse): array
     {
-        $response = $this->json('PUT', '/api/game/' . $putRequest['id'], [
-            'playerId' => $putRequest['currentPlayerId'],
-            'color' => $putRequest['players'][Player::nextPlayerId($putRequest['currentPlayerId'])]['color'], 
+        $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
+            'playerId' => $putResponse['currentPlayerId'],
+            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'], 
         ]);
 
         $response
@@ -218,9 +219,9 @@ class ApiTest extends TestCase
             ]);
         
         return [
-            'id' => $putRequest['id'],
-            'players' => $putRequest['players'],
-            'currentPlayerId' => $putRequest['currentPlayerId'],
+            'id' => $putResponse['id'],
+            'players' => $putResponse['players'],
+            'currentPlayerId' => $putResponse['currentPlayerId'],
         ];
     }
 
@@ -232,11 +233,11 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testPutGameMoveWithOtherPlayer(array $putRequest): array
+    public function testPutGameMoveWithOtherPlayer(array $putResponse): array
     {
-        $response = $this->json('PUT', '/api/game/' . $putRequest['id'], [
-            'playerId' => Player::nextPlayerId($putRequest['currentPlayerId']),
-            'color' => $putRequest['players'][Player::nextPlayerId($putRequest['currentPlayerId'])]['color'], 
+        $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
+            'playerId' => Player::nextPlayerId($putResponse['currentPlayerId']),
+            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'], 
         ]);
 
         $response
@@ -246,9 +247,9 @@ class ApiTest extends TestCase
             ]);
         
         return [
-            'id' => $putRequest['id'],
-            'players' => $putRequest['players'],
-            'currentPlayerId' => $putRequest['currentPlayerId'],
+            'id' => $putResponse['id'],
+            'players' => $putResponse['players'],
+            'currentPlayerId' => $putResponse['currentPlayerId'],
         ];
     }
 
@@ -259,10 +260,10 @@ class ApiTest extends TestCase
      *
      * @return array
      */
-    public function testPutGameMoveWithUnsupportedColor(array $putRequest): array
+    public function testPutGameMoveWithUnsupportedColor(array $putResponse): array
     {
-        $response = $this->json('PUT', '/api/game/' . $putRequest['id'], [
-            'playerId' => $putRequest['currentPlayerId'],
+        $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
+            'playerId' => $putResponse['currentPlayerId'],
             'color' => 'orange', 
         ]);
 
@@ -270,9 +271,69 @@ class ApiTest extends TestCase
             ->assertStatus(400);
         
         return [
-            'id' => $putRequest['id'],
-            'players' => $putRequest['players'],
-            'currentPlayerId' => $putRequest['currentPlayerId'],
+            'id' => $putResponse['id'],
+            'players' => $putResponse['players'],
+            'currentPlayerId' => $putResponse['currentPlayerId'],
+        ];
+    }
+
+
+    /**
+     * Trying to complete a game (not optimal way).
+     *
+     * @depends testPutGameMoveWithUnsupportedColor
+     *
+     * @return array
+     */
+    public function testCompleteAGameSlow(array $putResponse): array
+    {
+        $response = $this->json('GET', '/api/game/' . $putResponse['id']);
+
+        $response
+            ->assertStatus(200);
+
+        while ($response['winnerPlayerId'] == 0) {
+            $field = Field::fromArray($response['field']);
+            $colorStats = [];
+
+            foreach ($response['field']['cells'] as $i => $cell) {
+                if ($cell['playerId'] == $response['currentPlayerId']) {
+                    // left
+                    if (!($field->hasNoLeftCell($i))) {
+                        $leftIndex = $i - $field->width;
+                        if ($field->isNotPlayerCell($leftIndex) {
+                        }
+                    }
+                    
+                    // top
+                    if (!($field->hasNoTopCell($i))) {
+                        $topIndex = $i - $field->width + 1;
+                        if ($field->isNotPlayerCell($topIndex) {
+                        }
+                    }
+                    
+                    // right
+                    if (!($field->hasNoRightCell($i))) {
+                        $rightIndex = $i + $field->width;
+                        if ($field->isNotPlayerCell($rightIndex) {
+                        }
+                    }
+                    
+                    // bottom
+                    if (!($field->hasNoBottomCell($i))) {
+                        $bottomIndex = $i + $field->width - 1;
+                        if ($field->isNotPlayerCell($bottomIndex) {
+                        }
+                    }
+                }
+            }
+
+
+            break;
+        }
+
+        return [
+            'id' => $response['id'],
         ];
     }
 }

@@ -224,7 +224,22 @@ class Field {
     public function isAssignable(int $currentIndex, int $otherIndex, string $playerColor): bool {
         return $this->isValidIndex($currentIndex) &&
                $this->isValidIndex($otherIndex)   &&
-               $this->cells[$currentIndex]["playerId"] != $this->cells[$otherIndex]["playerId"] &&
+               0 == $this->cells[$otherIndex]["playerId"] &&
                Colors::compareColors($playerColor, $this->cells[$otherIndex]["color"]);
+    }
+    
+    /** 
+     * Checks if `other` cell (neighbour cell of `current` cell) 
+     *  donesn't belong to player stats cells.    
+     *
+     *  @param int $currentIndex current cell index
+     *  @param int $otherIndex other cell index
+     *
+     *  @return bool
+     */
+    public function isNotPlayerCell(int $currentIndex, int $otherIndex): bool {
+        return $this->isValidIndex($currentIndex) &&
+               $this->isValidIndex($otherIndex)   &&
+               0 == $this->cells[$otherIndex]["playerId"];
     }
 }
