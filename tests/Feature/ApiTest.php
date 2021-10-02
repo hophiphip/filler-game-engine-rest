@@ -364,43 +364,43 @@ class ApiTest extends TestCase
                                 $colorStats[$key] = 1;
                             }
                         }
-                    }
-                    
-                    // bottom
-                    if (!($field->hasNoBottomCell($i))) {
-                        $bottomIndex = $i + $field->width - 1;
-                        if ($field->isNotPlayerCell($bottomIndex)) {
-                            $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
-                            if (array_key_exists($key, $colorStats)) {
-                                $colorStats[$key] += 1;
-                            } else {
-                                $colorStats[$key] = 1;
+                        }
+                        
+                        // bottom
+                        if (!($field->hasNoBottomCell($i))) {
+                            $bottomIndex = $i + $field->width - 1;
+                            if ($field->isNotPlayerCell($bottomIndex)) {
+                                $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
+                                if (array_key_exists($key, $colorStats)) {
+                                    $colorStats[$key] += 1;
+                                } else {
+                                    $colorStats[$key] = 1;
+                                }
                             }
                         }
                     }
                 }
+
+                // Get rid of player colors
+                $colorStats[Colors::$colorsTable[$response['players'][1]['color']]] = -1;
+                $colorStats[Colors::$colorsTable[$response['players'][2]['color']]] = -1;
+
+                // Get the most popular color
+                $nextColor = Colors::$colors[array_search(max($colorStats),$colorStats)];
+
+                // NOTE: this call blocks
+                $response = $this->performPut([
+                    'id' => $response['id'],
+                    'currentPlayerId' => $response['currentPlayerId'],
+                    'nextColor' => $nextColor,
+                ], 100000);
+
+                $response
+                    ->assertStatus(201);
             }
 
-            // Get rid of player colors
-            $colorStats[Colors::$colorsTable[$response['players'][1]['color']]] = 0;
-            $colorStats[Colors::$colorsTable[$response['players'][2]['color']]] = 0;
-
-            // Get the most popular color
-            $nextColor = Colors::$colors[array_search(max($colorStats),$colorStats)];
-
-            // NOTE: this call blocks
-            $response = $this->performPut([
+            return [
                 'id' => $response['id'],
-                'currentPlayerId' => $response['currentPlayerId'],
-                'nextColor' => $nextColor,
-            ], 100000);
-
-            $response
-                ->assertStatus(201);
+            ];
         }
-
-        return [
-            'id' => $response['id'],
-        ];
     }
-}
