@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Traits\FromNamedArray;
 
 /**
- *  This class stores player representation.
+ *  This class contains player representation.
  */
 class Player {
     use FromNamedArray;
@@ -26,7 +26,7 @@ class Player {
      *  @param int $id player id
      *  @param string $color player initial color
      *
-     *  @return Player
+     *  @return void
      */
     public function __construct(int $id, string $color) {
         $this->id = $id;

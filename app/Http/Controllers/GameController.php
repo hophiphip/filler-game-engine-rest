@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-
-use Illuminate\Support\Facades\Log;
 
 use App\Models\Colors;
 use App\Models\Player;
-use App\Models\Cell;
 use App\Models\Field;
 use App\Models\Game;
 
@@ -18,15 +18,16 @@ class GameController extends Controller {
     /**
      * Create a new game.
      *
-     * @param  \Illuminate\Http\Request  $request contains `width` and `height` of the game field 
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request contains `width` and `height` of the game field
+     * @return Application|ResponseFactory|Response
      */
-    public function store(Request $request) {
+    public function store(Request $request): Response|Application|ResponseFactory
+    {
         $request->validate([
             'width' => 'required|numeric|gt:2',
             'height' => 'required|numeric|gt:2',
         ]);
-        
+
         $width = $request->input('width');
         $height = $request->input('height');
 
@@ -35,23 +36,30 @@ class GameController extends Controller {
                     ->header('Content-Type', 'application/json');
         }
 
-        $colors = Colors::shuffledColors(); 
+        $colors = Colors::shuffledColors();
 
         $playerOne = new Player(1, $colors[1]);
         $playerTwo = new Player(2, $colors[2]);
 
-        $field = new Field($width, $height);
+        // Variable scope in PHP is by function, not block.
+        //  So variable can be assigned inside the `try` block
+        try {
+            $field = new Field($width, $height);
+        } catch (Exception $exception) {
+            return \response(json_encode(["error" => "Internal Server Error (╯°□°）╯︵ ┻━┻"]), 500)
+                ->header('Content-Type', 'application/json');
+        }
 
         // Initialize players staring cells:
         //
         // 1st player starts with bottom-left cell
-        $bottomLeftIndex = count($field->cells) - $field->width; 
+        $bottomLeftIndex = count($field->cells) - $field->width;
         // 2nd player starts with top-right cell
-        $topRightIndex = $field->width - 1; 
-        
+        $topRightIndex = $field->width - 1;
+
         $field->cells[$bottomLeftIndex]->playerId = $playerOne->id;
         $field->cells[$bottomLeftIndex]->color = $playerOne->color;
-        
+
         $field->cells[$topRightIndex]->playerId = $playerTwo->id;
         $field->cells[$topRightIndex]->color = $playerTwo->color;
 
@@ -84,10 +92,11 @@ class GameController extends Controller {
     /**
      * Get game via ID.
      *
-     * @param  string  $id unique game Id
-     * @return \Illuminate\Http\JsonResponse
+     * @param string $id unique game Id
+     * @return Application|Response|ResponseFactory
      */
-    public function show($id) {
+    public function show(string $id): Response|Application|ResponseFactory
+    {
         if ($id == null) {
             return response(json_encode([
                 "error" => "incorrect request parameters",
@@ -114,31 +123,32 @@ class GameController extends Controller {
     /**
      * Make a player move.
      *
-     * @param  \Illuminate\Http\Request  $request contains `playerId` and player `color`
-     * @param  string  $id unique game Id
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request contains `playerId` and player `color`
+     * @param string $id unique game Id
+     * @return Application|Response|ResponseFactory
      */
-    public function update(Request $request, $id) {
-        $validator = Validator::make($request->all(), [ 
+    public function update(Request $request, string $id): Application|ResponseFactory|Response
+    {
+        $validator = Validator::make($request->all(), [
             'playerId' => 'required|numeric|max:2|min:1',
             'color' => [
                 'required',
-                'regex:' . Colors::$colorsRegex, 
+                'regex:' . Colors::$colorsRegex,
             ],
         ]);
 
-        if ($validator->fails()) {    
-            return response()->json([
-                $validator->messages(),
-            ], 400)->header('Content-Type', 'application/json');
+        if ($validator->fails()) {
+            return response(json_encode([
+                "error" => $validator->messages(),
+            ]), 400)->header('Content-Type', 'application/json');
         }
-        
+
         if ($id == null) {
             return response(json_encode([
                 "error" => "incorrect request parameters",
             ]), 400)->header('Content-Type', 'application/json');
         }
-        
+
         $playerId = $request->input('playerId');
         $color = $request->input('color');
         $game = Game::find($id);
@@ -167,7 +177,7 @@ class GameController extends Controller {
                     'players'         => $game->players,
                     'field'           => $game->field,
                 ]), 201)->header('Content-Type', 'application/json');
-            } 
+            }
         } else {
             return response(json_encode([
                 "error" => "incorrect game id",

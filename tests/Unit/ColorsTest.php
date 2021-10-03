@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\Colors;
@@ -41,7 +41,7 @@ class ColorsTest extends TestCase
        $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#red'));
        $this->assertTrue(1 != preg_match(Colors::$colorsRegex, '#000000red'));
        $this->assertTrue(1 != preg_match(Colors::$colorsRegex, 'white#000000'));
-       
+
        $this->assertTrue(preg_match(Colors::$colorsRegex, 'RED') == 1);
        $this->assertTrue(preg_match(Colors::$colorsRegex, 'BLUE') == 1);
     }

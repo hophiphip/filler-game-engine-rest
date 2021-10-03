@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use Exception;
+
 /**
- *  This class provides helpful methods for working with colors. 
+ *  This class provides helpful methods for working with colors.
  */
 final class Colors {
     /**
-     *  @var string $colorsRegex is the regex string that matches all colors from $colorsTable (case insensitive)
-     */    
-    public static $colorsRegex = '/^#([0-9a-f]{6})$|^red$|^green$|^blue$|^yellow$|^magenta$|^cyan$|^white$/i';
+     *  @var string $colorsRegex is the regex string that matches all colors from $colorsTable (case-insensitive)
+     */
+    public static string $colorsRegex = '/^#([0-9a-f]{6})$|^red$|^green$|^blue$|^yellow$|^magenta$|^cyan$|^white$/i';
 
     /**
-     *  @var array $colorsTable is a simple colors table to help comparing different representations of colors
+     *  @var array $colorsTable is a simple colors table to help to compare different representations of colors
      */
-    public static $colorsTable = array(
+    public static array $colorsTable = array(
         '#ff0000' => 0,
         '#00ff00' => 1,
         '#0000ff' => 2,
@@ -30,12 +32,12 @@ final class Colors {
         'magenta' => 4,
            'cyan' => 5,
           'white' => 6,
-    );   
+    );
 
     /**
      * @var array $colors is a color-id to color table
      */
-    public static $colors = array(
+    public static array $colors = array(
         0 => '#ff0000',
         1 => '#00ff00',
         2 => '#0000ff',
@@ -47,8 +49,9 @@ final class Colors {
 
     /**
      *  Returns one random color string
-     *  
-     *  @return string
+     *
+     * @return string
+     * @throws Exception
      */
     public static function randomColorString(): string {
         return self::$colors[random_int(0, count(self::$colors) - 1)];
@@ -60,7 +63,6 @@ final class Colors {
      *  @return array
      */
     public static function shuffledColors(): array {
-        $out = array();
         $out = self::$colors;
 
         shuffle($out);
@@ -68,7 +70,7 @@ final class Colors {
     }
 
     /**
-     *  Compares colors. Supports different color representations and is case insensitive.
+     *  Compares colors. Supports different color representations and is case-insensitive.
      *  Returns 'true' is colors are the same, otherwise 'false'
      *
      *  @param string $_r first color to compare
@@ -88,18 +90,18 @@ final class Colors {
     /**
      *  Returns allowed color for player next move.
      *
-     *  @param string color1 first color
-     *  @param string color2 second color
+     * @param string $color1
+     * @param string $color2
      *
-     *  @return string
+     * @return string|null
      */
-    public static function allowedColor(string $color1, string $color2)
+    public static function allowedColor(string $color1, string $color2): ?string
     {
         if ($color1 == null || $color2 == null) {
             return null;
         }
 
-        foreach(Colors::$colors as $i => $color) {
+        foreach(Colors::$colors as $color) {
             if (Colors::compareColors($color1, $color) == false &&
                 Colors::compareColors($color2, $color) == false) {
                 return $color;

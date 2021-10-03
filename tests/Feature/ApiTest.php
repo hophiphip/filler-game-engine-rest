@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
+use JetBrains\PhpStorm\ArrayShape;
 use Tests\TestCase;
 
 use App\Models\Colors;
@@ -23,12 +24,12 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(404)
             ->assertJson([
-                'error' =>  'incorrect game id',        
+                'error' =>  'incorrect game id',
             ]);
     }
-    
+
     /**
-     * Put a move in non existent game.
+     * Put a move in non-existent game.
      *
      * @return void
      */
@@ -42,7 +43,7 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(404)
             ->assertJson([
-                'error' =>  'incorrect game id',        
+                'error' =>  'incorrect game id',
             ]);
     }
 
@@ -93,11 +94,12 @@ class ApiTest extends TestCase
      *
      * @return array
      */
+    #[ArrayShape(['id' => "mixed"])]
     public function testPostNewGame(): array
     {
         $response = $this->json('POST', '/api/game', [
-            'width' => 25,
-            'height' => 15,
+            'width' => 15,
+            'height' => 11,
         ]);
 
         $response
@@ -115,8 +117,10 @@ class ApiTest extends TestCase
      *
      * @depends testPostNewGame
      *
+     * @param array $postResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testGetNewGame(array $postResponse): array
     {
         $response = $this->json('GET', '/api/game/' . $postResponse['id']);
@@ -135,26 +139,28 @@ class ApiTest extends TestCase
             'currentPlayerId' => $response['currentPlayerId'],
         ];
     }
-    
+
     /**
      * Test putting a new game move.
      *
      * @depends testGetNewGame
      *
+     * @param array $getResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testPutGameMove(array $getResponse): array
     {
         $allowedColor = Colors::allowedColor(
             $getResponse['players'][1]['color'],
             $getResponse['players'][2]['color']
         );
-        
+
         $this->assertTrue($allowedColor != null);
 
         $response = $this->json('PUT', '/api/game/' . $getResponse['id'], [
             'playerId' => $getResponse['currentPlayerId'],
-            'color' => $allowedColor, 
+            'color' => $allowedColor,
         ]);
 
         $response
@@ -170,19 +176,21 @@ class ApiTest extends TestCase
             'currentPlayerId' => $response['currentPlayerId'],
         ];
     }
-    
+
     /**
      * Test putting a new game move with current player color.
      *
      * @depends testPutGameMove
      *
+     * @param array $putResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testPutGameMoveWithCurrentPlayerColor(array $putResponse): array
     {
         $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
             'playerId' => $putResponse['currentPlayerId'],
-            'color' => $putResponse['players'][$putResponse['currentPlayerId']]['color'], 
+            'color' => $putResponse['players'][$putResponse['currentPlayerId']]['color'],
         ]);
 
         $response
@@ -190,26 +198,28 @@ class ApiTest extends TestCase
             ->assertJson([
                 'error' => 'provided player can\'t choose this color',
             ]);
-        
+
         return [
             'id' => $putResponse['id'],
             'players' => $putResponse['players'],
             'currentPlayerId' => $putResponse['currentPlayerId'],
         ];
     }
-    
+
     /**
      * Test putting a new game move with other player color.
      *
      * @depends testPutGameMoveWithCurrentPlayerColor
      *
+     * @param array $putResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testPutGameMoveWithOtherPlayerColor(array $putResponse): array
     {
         $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
             'playerId' => $putResponse['currentPlayerId'],
-            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'], 
+            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'],
         ]);
 
         $response
@@ -217,7 +227,7 @@ class ApiTest extends TestCase
             ->assertJson([
                 'error' => 'provided player can\'t choose this color',
             ]);
-        
+
         return [
             'id' => $putResponse['id'],
             'players' => $putResponse['players'],
@@ -231,13 +241,15 @@ class ApiTest extends TestCase
      *
      * @depends testPutGameMoveWithOtherPlayerColor
      *
+     * @param array $putResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testPutGameMoveWithOtherPlayer(array $putResponse): array
     {
         $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
             'playerId' => Player::nextPlayerId($putResponse['currentPlayerId']),
-            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'], 
+            'color' => $putResponse['players'][Player::nextPlayerId($putResponse['currentPlayerId'])]['color'],
         ]);
 
         $response
@@ -245,7 +257,7 @@ class ApiTest extends TestCase
             ->assertJson([
                 'error' => 'provided player can\'t move right now',
             ]);
-        
+
         return [
             'id' => $putResponse['id'],
             'players' => $putResponse['players'],
@@ -258,18 +270,20 @@ class ApiTest extends TestCase
      *
      * @depends testPutGameMoveWithOtherPlayer
      *
+     * @param array $putResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed", 'players' => "mixed", 'currentPlayerId' => "mixed"])]
     public function testPutGameMoveWithUnsupportedColor(array $putResponse): array
     {
         $response = $this->json('PUT', '/api/game/' . $putResponse['id'], [
             'playerId' => $putResponse['currentPlayerId'],
-            'color' => 'orange', 
+            'color' => 'orange',
         ]);
 
         $response
             ->assertStatus(400);
-        
+
         return [
             'id' => $putResponse['id'],
             'players' => $putResponse['players'],
@@ -281,27 +295,27 @@ class ApiTest extends TestCase
     /**
      * Perform PUT request (with handling HTTP 429 error)
      *
-     * @param arrray $params PUT request parameters
+     * @param array $params PUT request parameters
      * @param int $timeout timeout in microseconds
      *
-     * @return Illuminate\Testing\TestResponse
+     * @return TestResponse
      */
-    public function performPut(array $params, int $timeout)
+    public function performPut(array $params, int $timeout): TestResponse
     {
         $backupResponse = $this->json('PUT', '/api/game/' . $params['id'], [
             'playerId' => $params['currentPlayerId'],
-            'color' => $params['nextColor'], 
+            'color' => $params['nextColor'],
         ]);
 
         // handle timeout in case of too many requests
         while ($backupResponse->status() == 429) {
             $backupResponse = $this->json('PUT', '/api/game/' . $params['id'], [
                 'playerId' => $params['currentPlayerId'],
-                'color' => $params['nextColor'], 
+                'color' => $params['nextColor'],
             ]);
 
             usleep($timeout);
-        };
+        }
 
         return $backupResponse;
     }
@@ -311,8 +325,10 @@ class ApiTest extends TestCase
      *
      * @depends testPutGameMoveWithUnsupportedColor
      *
+     * @param array $putResponse
      * @return array
      */
+    #[ArrayShape(['id' => "mixed"])]
     public function testCompleteAGame(array $putResponse): array
     {
         $response = $this->json('GET', '/api/game/' . $putResponse['id']);
@@ -320,74 +336,31 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200);
 
-        // Initialze player stats
-        $stats = [
-            1 => [],
-            2 => [],
-        ];
-        foreach ($response['field']['cells'] as $i => $cell) {
-            if ($cell['playerId'] != 0) {
-                array_push($stats[$cell['playerId']], $i);
-            }
-        }
-
         $moves = 0;
         while ($response['winnerPlayerId'] == 0) {
-            $field = Field::fromArray($response['field']);
-            
-            // map color to cell index
-            $colorStats = [
-                0 => [],   
-                1 => [],   
-                2 => [],   
-                3 => [],   
-                4 => [],   
-                5 => [],   
-                6 => [],   
+            // Initialize player stats
+            // NOTE: Can speed this up by storing & updating each player `stats`(player's cells indexes). 
+            $stats = [
+                1 => [],
+                2 => [],
             ];
 
-            // TODO: Must check cells recuresively/in a loop (neighbour of a neighbour)
+            foreach ($response['field']['cells'] as $i => $cell) {
+                if ($cell['playerId'] != 0) {
+                    array_push($stats[$cell['playerId']], $i);
+                }
+            }
 
-            //foreach ($stats[$response['currentPlayerId']] as $i) {
-            foreach ($field->cells as $i => $cell) {
-                if ($cell['playerId'] == $response['currentPlayerId']) {
-                // left
-                if (!($field->hasNoLeftCell($i))) {
-                    $leftIndex = $i - $field->width;
-                    if ($field->isNotPlayerCell($leftIndex)) {
-                        $key = Colors::$colorsTable[$field->cells[$leftIndex]["color"]]; 
-                        array_push($colorStats[$key], $leftIndex);
-                    }
-                }
-                
-                // top
-                if (!($field->hasNoTopCell($i))) {
-                    $topIndex = $i - $field->width + 1;
-                    if ($field->isNotPlayerCell($topIndex)) {
-                        $key = Colors::$colorsTable[$field->cells[$topIndex]["color"]]; 
-                        array_push($colorStats[$key], $topIndex);
-                    }
-                }
-                
-                // right
-                if (!($field->hasNoRightCell($i))) {
-                    $rightIndex = $i + $field->width;
-                    if ($field->isNotPlayerCell($rightIndex)) {
-                        $key = Colors::$colorsTable[$field->cells[$rightIndex]["color"]]; 
-                        array_push($colorStats[$key], $rightIndex);
-                    }
-                }
-                    
-                // bottom
-                if (!($field->hasNoBottomCell($i))) {
-                    $bottomIndex = $i + $field->width - 1;
-                    if ($field->isNotPlayerCell($bottomIndex)) {
-                        $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
-                        array_push($colorStats[$key], $bottomIndex);
-                    }
-                }
-            }
-            }
+            // map color to cell index
+            $colorStats = [
+                0 => [],
+                1 => [],
+                2 => [],
+                3 => [],
+                4 => [],
+                5 => [],
+                6 => [],
+            ];
 
             // Get rid of player colors
             unset($colorStats[Colors::$colorsTable[$response['players'][1]['color']]]);
@@ -396,35 +369,83 @@ class ApiTest extends TestCase
             // Not needed, but just in case
             $this->assertTrue(count($colorStats) == 5);
 
-            // Cells must be unique
+            // Get the next color prediction map
+            $time_pre = microtime(true);
             foreach ($colorStats as $colorKey => $colorStat) {
-                $colorStats[$colorKey] = array_unique($colorStat);
-            }
+                $field = Field::fromArray($response['field']);
 
-            // Get the most popular color
-            $maxIdx = array_key_first($colorStats);
-            foreach ($colorStats as $colorKey => $cells) {
-                if (count($colorStats[$maxIdx]) < count($cells)) {
-                    $maxIdx = $colorKey;
+                $currentPlayerId = $response['currentPlayerId'];
+                $playerColor = Colors::$colors[$colorKey];
+                $playerStats = $stats[$currentPlayerId];
+
+                for ($i = 0; $i < count($playerStats); $i++) {
+                    $cellIndex = $playerStats[$i];
+
+                    // left
+                    if (!($field->hasNoLeftCell($cellIndex))) {
+                        $leftIndex = $cellIndex - $field->width;
+                        if ($field->isAssignable($cellIndex, $leftIndex, $playerColor)) {
+                            // assign other cell to current player id
+                            $field->cells[$leftIndex]["playerId"] = 
+                                    $field->cells[$cellIndex]["playerId"];
+                            // add other cell to current player cells
+                            array_push($playerStats, $leftIndex);
+                        }
+                    }
+
+                    // top
+                    if (!($field->hasNoTopCell($cellIndex))) {
+                        $topIndex = $cellIndex - $field->width + 1;
+                        if ($field->isAssignable($cellIndex, $topIndex, $playerColor)) {
+                            // assign other cell to current player id
+                            $field->cells[$topIndex]["playerId"] = 
+                                    $field->cells[$cellIndex]["playerId"];
+                            // add other cell to current player cells
+                            array_push($playerStats, $topIndex);
+                        }
+                    }
+
+                    // right
+                    if (!($field->hasNoRightCell($cellIndex))) {
+                        $rightIndex = $cellIndex + $field->width;
+                        if ($field->isAssignable($cellIndex, $rightIndex, $playerColor)) {
+                            // assign other cell to current player id
+                            $field->cells[$rightIndex]["playerId"] = 
+                                    $field->cells[$cellIndex]["playerId"];
+                            // add other cell to current player cells
+                            array_push($playerStats, $rightIndex);
+                        }
+                    }
+
+                    // bottom
+                    if (!($field->hasNoBottomCell($cellIndex))) {
+                        $bottomIndex = $cellIndex + $field->width - 1;
+                        if ($field->isAssignable($cellIndex, $bottomIndex, $playerColor)) {
+                            // assign other cell to current player id
+                            $field->cells[$bottomIndex]["playerId"] = 
+                                    $field->cells[$cellIndex]["playerId"];
+                            // add other cell to current player cells
+                            array_push($playerStats, $bottomIndex);
+                        }
+                    }
+                }
+
+                $colorStats[$colorKey] = $playerStats;
+
+                unset($playerStats);
+                unset($field);
+            }
+            $time_post = microtime(true);
+            $exec_time = $time_post - $time_pre;
+            var_dump(["move number" => $moves, "loop_time" => $exec_time]);
+
+            // Get next color
+            $nextColorKey = array_key_first($colorStats);
+            foreach ($colorStats as $colorKey => $colorStat) {
+                if (count($colorStats[$nextColorKey]) < count($colorStat)) {
+                    $nextColorKey = $colorKey;
                 }
             }
-            $nextColor = Colors::$colors[$maxIdx];
-
-            // Merge new cells into stats
-            $stats[$response['currentPlayerId']] = 
-                array_merge($stats[$response['currentPlayerId']], $colorStats[$maxIdx]);
-
-            // Test for duplicates
-            if(count($stats[$response['currentPlayerId']]) != count(array_unique($stats[$response['currentPlayerId']]))) {
-                var_dump($stats);
-                var_dump($colorStats);
-                var_dump($nextColor);
-                var_dump($response['players'][$response['currentPlayerId']]);
-            }
-
-            $this->assertTrue(
-                count($stats[$response['currentPlayerId']]) == count(array_unique($stats[$response['currentPlayerId']]))
-            );
 
             // Cleanup
             unset($colorStats);
@@ -433,19 +454,26 @@ class ApiTest extends TestCase
             $response = $this->performPut([
                 'id' => $response['id'],
                 'currentPlayerId' => $response['currentPlayerId'],
-                'nextColor' => $nextColor,
+                'nextColor' => Colors::$colors[$nextColorKey],
             ], 1000);
 
             $response
                 ->assertStatus(201);
 
             $moves++;
+
+            // Timeout
+            if ($moves > 100) {
+                $this->assertTrue($response['winnerPlayerId'] != 0);
+                break;
+            }
         }
 
         var_dump(["move count" => $moves]);
 
         return [
             'id' => $response['id'],
+            'number of moves' => $moves,
         ];
     }
 

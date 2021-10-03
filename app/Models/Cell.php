@@ -22,7 +22,7 @@ class Cell {
      *  @param int $playerId cell's initial player id
      *  @param string $color cell's initial color
      *
-     *  @return Cell
+     *  @return void
      */
     public function __construct(int $playerId, string $color) {
         $this->playerId = $playerId;
