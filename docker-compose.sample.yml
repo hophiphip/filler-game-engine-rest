@@ -8,8 +8,6 @@ services:
             dockerfile: docker/app/Dockerfile
         ports:
             - "${APP_PORT}:8000"
-        volumes:
-            - '.:/var/www/html'
         networks:
             - appnet
         depends_on:
