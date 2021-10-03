@@ -4,22 +4,44 @@
 https://fllr.herokuapp.com/
 
 ## Running locally (with [docker compose](https://docs.docker.com/compose/install/))
-  1. Create local config & docker-compose files.
+Update `.env.sample` file if necessary and then run:
 ```bash
-cp .env.sample .env
+docker-compose -f docker-compose.sample.yml up --build
 ```
-```bash
-cp docker-compose.sample.yml docker-compose.yml
-```
-  2. Update environment (`.env` file) variables (Optional).
-  3. Update `APP_KEY` (Optional).
-```bash
-php artisan key:generate
-```
-  5. Run it.
-```bash
-docker-compose up
-```
-Then it can be accessed on `localhost:8080`. Port can be changed in `.env` file.
+Then it can be accessed on `localhost:8080`. Port can be changed in `.env.sample` file.
 
+## API Routes
+Create a new game
+* **URL**  
+  /api/game
+* **Method**  
+  `POST`
+* **URL Params**  
+  None
+* **Data Params**  
+  **Required**  
+  `width=[int]`
+  `height=[int]`
 
+Get game status
+* **URL**  
+    /api/game/:id
+* **Method**  
+    `GET`
+* **URL Params**  
+  **Required:**  
+    `id=[string]`
+* **Data Params**  
+     None
+
+Make a player move
+* **URL**  
+  /api/game/:id
+* **Method**  
+  `PUT`
+* **URL Params**  
+  **Required:**  
+  `id=[string]`
+* **Data Params**  
+  `playerId=[int]`
+  `color=[string]`

@@ -69,9 +69,6 @@ function unhideGame() {
     gameProgressBar2.hidden = false;
 }
 
-
-// TODO: No `game over` state
-
 function assignButtonColors(button, color) {
     if (Game.isUsefulColor(game, color)) {
         button.style["border"] = "30px solid " + Cell._adjustColor(color, -25);
@@ -87,7 +84,7 @@ function assignButtonColors(button, color) {
 }
 
 function addGameButtons() {
-    if (gameButtons.childElementCount == 0) { 
+    if (gameButtons.childElementCount == 0) {
         colors.forEach(function(color, index) {
             var button = document.createElement('div');
             button.id = gameButtonsId + "-" + index;
@@ -114,11 +111,25 @@ function addGameButtons() {
                                     2 : Player.from(json.players[2]),
                                 };
                                 game.field = Field.from(json.field);
-                                
+
                                 // redraw the game
                                 draw(game);
                             } else {
                                 console.debug("Button with index: ", index, "request failed");
+                            }
+                        }).catch(function(error) {
+                            if (typeof error.response != 'undefined') {
+                                switch (error.response.status) {
+                                    // Incorrect game id
+                                    case 404: {
+                                        console.log(error.response);
+
+                                        // start a new game
+                                        sessionStorage.removeItem(gameIdKey);
+                                        main();
+                                        break;
+                                    }
+                                }
                             }
                         });
                     } else {
@@ -133,7 +144,7 @@ function addGameButtons() {
         });
     } else {
         console.log("Buttons have been added before");
-        
+
         colors.forEach(function(color, index) {
             assignButtonColors(gameButtons.children[index], color);
         });
@@ -143,19 +154,17 @@ function addGameButtons() {
 function init() {
     // Default color for border corners
     document.body.style["background"] = "linear-gradient(45deg, #000000A0, #000000A0)";
-    
+
     if (gamePageCanvas.getContext) {
         gameCanvasContext  = gamePageCanvas.getContext("2d");
         return null;
     } else {
-        return Error("canvas:" + gamePageCanvasId + " has no context"); 
+        return Error("canvas:" + gamePageCanvasId + " has no context");
     }
 }
 
 
 function main() {
-    //sessionStorage.clear();
-    
     var gameId = sessionStorage.getItem(gameIdKey);
     if (gameId == null) {
         console.log("no game id is set");
@@ -166,7 +175,7 @@ function main() {
             "click",
             function() {
                 console.log("Next button was pressed");
-                
+
                 if (newPageSelect.value in newPageSelectValues) {
                     newGame(
                         newPageSelectValues[newPageSelect.value].width,
@@ -176,7 +185,7 @@ function main() {
 
                         if (json.id) {
                             sessionStorage.setItem(gameIdKey, json.id);
-                              
+
                             // TODO: Test game accessibility via Id
 
                             main();
@@ -202,19 +211,33 @@ function main() {
             game = Game.from(json);
             if (game != null) {
                 console.log("Game state: ", game);
-                
+
                 // change canvas size to fit game field
                 gamePageCanvas.width  = cellWidth * game.field.width + 100; //fieldWidth;
-                gamePageCanvas.height = cellHeight * game.field.height + 100 
+                gamePageCanvas.height = cellHeight * game.field.height + 100
                                         - ((~~game.field.height / 2) * cellHeight); //fieldHeight;
-               
+
                 console.log("Canvas width: ", gamePageCanvas.width,
                             ", Canvas height: ", gamePageCanvas.height);
-                
+
                 // draw the game
                 draw(game);
             } else {
                 console.error("Failed to initialize game");
+            }
+        }).catch(function(error) {
+            if (typeof error.response != 'undefined') {
+                switch (error.response.status) {
+                    // Incorrect game id
+                    case 404: {
+                        console.log(error.response);
+
+                        // start a new game
+                        sessionStorage.removeItem(gameIdKey);
+                        main();
+                        break;
+                    }
+                }
             }
         });
 
@@ -225,7 +248,7 @@ function draw(game) {
     // Draw game field
     game.field.draw(
         gameCanvasContext,
-        0, // x 
+        0, // x
         0, // y
         cellWidth,
         cellHeight
@@ -235,20 +258,32 @@ function draw(game) {
     addGameButtons();
 
     // Display which player turn is right now
-    gamePlayerState.innerHTML = "Player's " + game.currentPlayerId + " turn";
-    gamePlayerState.style.color = game.players[game.currentPlayerId].color;
-   
+    if (game.winnerPlayerId == 0) {
+        gamePlayerState.innerHTML = "Player " + game.currentPlayerId + " turn";
+        gamePlayerState.style.color = game.players[game.currentPlayerId].color;
+    } else {
+        gamePlayerState.innerHTML = "Player " + game.winnerPlayerId + " won!";
+        gamePlayerState.style.color = game.players[game.winnerPlayerId].color;
+        sessionStorage.removeItem(gameIdKey);
+
+        // Wait 3 seconds
+        setTimeout(() => {
+            // New game once again
+            main();
+        }, 3000);
+    }
+
     // Set border corners colors
-    document.body.style["background"] = "linear-gradient(45deg, " 
-                                        + game.players[1].color + "A0" 
-                                        + ", " 
+    document.body.style["background"] = "linear-gradient(45deg, "
+                                        + game.players[1].color + "A0"
+                                        + ", "
                                         + game.players[2].color + "A0"
                                         + ")";
 
     // Update progress bar
     console.debug("Progress-1: ", game.field.playersCells[1].size / game.field.cells.length * 100);
     console.debug("Progress-2: ", game.field.playersCells[2].size / game.field.cells.length * 100);
-    
+
     gameProgress1.style.background = game.players[1].color;
     gameProgress1.style.width = 100 * (game.field.playersCells[1].size / game.field.cells.length) + percentPadding + "%";
     gameProgress2.style.background = game.players[2].color;
@@ -256,7 +291,6 @@ function draw(game) {
 
     gameProgressCircle1.style.background = game.players[1].color;
     gameProgressCircle2.style.background = game.players[2].color;
-    // TODO: Handle gameover here: ..
 }
 
 const err = init();

@@ -21,9 +21,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions mongodb-stable
 
 RUN chown -R dokuser:dokgroup /var/www/html
-RUN chmod 755 /var/www/html
-USER dokuser
+RUN chmod -R 755 /var/www/html
+#USER dokuser
 
 EXPOSE 8000
-
-CMD [ "php", "artisan", "serve", "--port=8000", "--host=0.0.0.0" ]

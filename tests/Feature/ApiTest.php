@@ -328,7 +328,7 @@ class ApiTest extends TestCase
      * @param array $putResponse
      * @return array
      */
-    #[ArrayShape(['id' => "mixed"])]
+    #[ArrayShape(['id' => "mixed", "moves" => "int"])]
     public function testCompleteAGame(array $putResponse): array
     {
         $response = $this->json('GET', '/api/game/' . $putResponse['id']);
@@ -339,7 +339,7 @@ class ApiTest extends TestCase
         $moves = 0;
         while ($response['winnerPlayerId'] == 0) {
             // Initialize player stats
-            // NOTE: Can speed this up by storing & updating each player `stats`(player's cells indexes). 
+            // NOTE: Can speed this up by storing & updating each player `stats`(player's cells indexes).
             $stats = [
                 1 => [],
                 2 => [],
@@ -386,7 +386,7 @@ class ApiTest extends TestCase
                         $leftIndex = $cellIndex - $field->width;
                         if ($field->isAssignable($cellIndex, $leftIndex, $playerColor)) {
                             // assign other cell to current player id
-                            $field->cells[$leftIndex]["playerId"] = 
+                            $field->cells[$leftIndex]["playerId"] =
                                     $field->cells[$cellIndex]["playerId"];
                             // add other cell to current player cells
                             array_push($playerStats, $leftIndex);
@@ -398,7 +398,7 @@ class ApiTest extends TestCase
                         $topIndex = $cellIndex - $field->width + 1;
                         if ($field->isAssignable($cellIndex, $topIndex, $playerColor)) {
                             // assign other cell to current player id
-                            $field->cells[$topIndex]["playerId"] = 
+                            $field->cells[$topIndex]["playerId"] =
                                     $field->cells[$cellIndex]["playerId"];
                             // add other cell to current player cells
                             array_push($playerStats, $topIndex);
@@ -410,7 +410,7 @@ class ApiTest extends TestCase
                         $rightIndex = $cellIndex + $field->width;
                         if ($field->isAssignable($cellIndex, $rightIndex, $playerColor)) {
                             // assign other cell to current player id
-                            $field->cells[$rightIndex]["playerId"] = 
+                            $field->cells[$rightIndex]["playerId"] =
                                     $field->cells[$cellIndex]["playerId"];
                             // add other cell to current player cells
                             array_push($playerStats, $rightIndex);
@@ -422,7 +422,7 @@ class ApiTest extends TestCase
                         $bottomIndex = $cellIndex + $field->width - 1;
                         if ($field->isAssignable($cellIndex, $bottomIndex, $playerColor)) {
                             // assign other cell to current player id
-                            $field->cells[$bottomIndex]["playerId"] = 
+                            $field->cells[$bottomIndex]["playerId"] =
                                     $field->cells[$cellIndex]["playerId"];
                             // add other cell to current player cells
                             array_push($playerStats, $bottomIndex);
@@ -473,7 +473,7 @@ class ApiTest extends TestCase
 
         return [
             'id' => $response['id'],
-            'number of moves' => $moves,
+            'moves' => $moves,
         ];
     }
 

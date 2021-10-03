@@ -1,17 +1,17 @@
 version: '3.3'
 services:
    laravel:
-        env_file:
-          - .env.sample
         build:
             context: .
-            dockerfile: docker/app/Dockerfile
+            dockerfile: docker/fpm/Dockerfile
         ports:
-            - "${APP_PORT}:8000"
+            - "9000"
+        working_dir: /var/www
         volumes:
-            - '.:/var/www/html'
+            - '.:/var/www'
         networks:
             - appnet
+        restart: unless-stopped
         depends_on:
             - mongodb
    mongodb:
@@ -28,11 +28,24 @@ services:
         networks:
             - appnet
         ports:
-            - '${MONGO_DB_PORT}:${MONGO_DB_PORT}'
+            - '${MONGO_DB_PORT}'
         healthcheck:
             test: echo 'db.runCommand("ping").ok' | mongosh mongodb:'${MONGO_DB_PORT}' --quiet
             retries: 3
             timeout: 10s
+   nginx:
+        restart: unless-stopped
+        image: nginx:alpine
+        volumes:
+            - './docker/fpm/conf.d/:/etc/nginx/conf.d/'
+        volumes_from:
+            - mongodb
+            - laravel
+        ports:
+            - "8000:80"
+            - "4443:443"
+        networks:
+          - appnet
 networks:
    appnet:
         driver: bridge

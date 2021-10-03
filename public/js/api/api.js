@@ -1,10 +1,6 @@
-import { host } from '../config.js'; 
-
-// TODO: Handle other http errors
+import { host } from '../config.js';
 
 export async function newGame(width, height) {
-    console.debug("called POST: '/api/game'");
-
     try {
         const {data:response} = await axios({
             method: 'POST',
@@ -19,7 +15,7 @@ export async function newGame(width, height) {
             }
         }).catch(function(error) {
             switch (error.response.status) {
-                // Provided incorrect field size 
+                // Provided incorrect field size
                 case 400: {
                     console.log(error.response);
                     break;
@@ -31,17 +27,15 @@ export async function newGame(width, height) {
         return response;
     }
     catch(error) {
-        console.log(error);
+        throw error;
     }
 }
 
 export async function getGame(id) {
-    console.debug("called GET: '/api/game/'" + id);
-    
     try {
         const {data:response} = await axios({
             method: 'GET',
-            url: host + '/api/game/' + id, 
+            url: host + '/api/game/' + id,
             withCredentials: false,
             headers: {
                 'Accept' : 'application/json',
@@ -66,13 +60,11 @@ export async function getGame(id) {
         return response;
     }
     catch(error) {
-        console.log(error);
+        throw error;
     }
 }
 
 export async function updateGame(game, color) {
-    console.debug("called PUT: '/api/game/'" + game.id);
-
     try {
         const {data:response} = await axios({
             method: 'PUT',
@@ -92,7 +84,7 @@ export async function updateGame(game, color) {
                     console.log(error.response);
                     break;
                 }
-                
+
                 // Provided player can't make a move right now
                 case 403: {
                     console.log(error.response);
@@ -115,9 +107,9 @@ export async function updateGame(game, color) {
         });
 
         return response;
-    } 
+    }
     catch(error) {
-        console.log(error);
+        throw error;
     }
 }
 
