@@ -6,6 +6,9 @@ https://fllr.herokuapp.com/
 ## Running locally (with [docker compose](https://docs.docker.com/compose/install/))
 Update `.env.sample` file if necessary and then run:
 ```bash
+cp .env.sample .env
+```
+```bash
 docker-compose -f docker-compose.sample.yml up --build
 ```
 Then it can be accessed on `localhost:8080`. Port can be changed in `.env.sample` file.
