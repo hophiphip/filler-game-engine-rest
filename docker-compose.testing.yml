@@ -1,16 +1,14 @@
 version: '3.3'
 services:
    laravel:
-        container_name: fllr_laravel_test
         env_file:
-          - .env.testing
+            - .env.testing
+        container_name: fllr_laravel_test
         build:
             context: .
             dockerfile: docker/testing/Dockerfile
         ports:
-            - "${APP_PORT}:8000"
-        volumes:
-            - '.:/var/www/html'
+            - "8000:8000"
         networks:
             - appnet
         depends_on:

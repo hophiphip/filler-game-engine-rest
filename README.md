@@ -10,6 +10,29 @@ docker-compose -f docker-compose.sample.yml up --build
 ```
 Then it can be accessed on `localhost:8080`. Port can be changed in `.env.sample` file.
 
+## Running tests (with [docker compose](https://docs.docker.com/compose/install/))
+```bash
+docker-compose -f docker-compose.testing.yml build \ 
+  && docker-compose -f docker-compose.testing.yml run --rm laravel php artisan test
+```
+
+## Running locally (without Docker)  
+  1. Create & update `.env` file
+```bash
+cp .env.sample .env
+```
+Update database config
+  2. Initialize app.
+```bash
+php artisan key:generate
+php artisan migrate
+composer install
+```
+  3. Run app.
+```bash
+php artisan serve
+```
+
 ## API Routes
 Create a new game
 * **URL**  
