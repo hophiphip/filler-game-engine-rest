@@ -15,6 +15,7 @@ Then it can be accessed on `localhost:8080`. Port can be changed in `.env.sample
 
 ## Running tests (with [docker compose](https://docs.docker.com/compose/install/))
 ```bash
+cp .env.testing .env
 docker-compose -f docker-compose.testing.yml build \ 
   && docker-compose -f docker-compose.testing.yml run --rm laravel php artisan test
 ```
