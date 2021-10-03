@@ -320,87 +320,133 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200);
 
+        // Initialze player stats
+        $stats = [
+            1 => [],
+            2 => [],
+        ];
+        foreach ($response['field']['cells'] as $i => $cell) {
+            if ($cell['playerId'] != 0) {
+                array_push($stats[$cell['playerId']], $i);
+            }
+        }
+
+        $moves = 0;
         while ($response['winnerPlayerId'] == 0) {
             $field = Field::fromArray($response['field']);
-            $colorStats = array();
+            
+            // map color to cell index
+            $colorStats = [
+                0 => [],   
+                1 => [],   
+                2 => [],   
+                3 => [],   
+                4 => [],   
+                5 => [],   
+                6 => [],   
+            ];
 
-            // NOTE: This loop takes a lot of time:
-            foreach ($response['field']['cells'] as $i => $cell) {
+            // TODO: Must check cells recuresively/in a loop (neighbour of a neighbour)
+
+            //foreach ($stats[$response['currentPlayerId']] as $i) {
+            foreach ($field->cells as $i => $cell) {
                 if ($cell['playerId'] == $response['currentPlayerId']) {
-                    // left
-                    if (!($field->hasNoLeftCell($i))) {
-                        $leftIndex = $i - $field->width;
-                        if ($field->isNotPlayerCell($leftIndex)) {
-                            $key = Colors::$colorsTable[$field->cells[$leftIndex]["color"]]; 
-                            if (array_key_exists($key, $colorStats)) {
-                                $colorStats[$key] += 1;
-                            } else {
-                                $colorStats[$key] = 1;
-                            }
-                        }
-                    }
-                    
-                    // top
-                    if (!($field->hasNoTopCell($i))) {
-                        $topIndex = $i - $field->width + 1;
-                        if ($field->isNotPlayerCell($topIndex)) {
-                            $key = Colors::$colorsTable[$field->cells[$topIndex]["color"]]; 
-                            if (array_key_exists($key, $colorStats)) {
-                                $colorStats[$key] += 1;
-                            } else {
-                                $colorStats[$key] = 1;
-                            }
-                        }
-                    }
-                    
-                    // right
-                    if (!($field->hasNoRightCell($i))) {
-                        $rightIndex = $i + $field->width;
-                        if ($field->isNotPlayerCell($rightIndex)) {
-                            $key = Colors::$colorsTable[$field->cells[$rightIndex]["color"]]; 
-                            if (array_key_exists($key, $colorStats)) {
-                                $colorStats[$key] += 1;
-                            } else {
-                                $colorStats[$key] = 1;
-                            }
-                        }
-                        }
-                        
-                        // bottom
-                        if (!($field->hasNoBottomCell($i))) {
-                            $bottomIndex = $i + $field->width - 1;
-                            if ($field->isNotPlayerCell($bottomIndex)) {
-                                $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
-                                if (array_key_exists($key, $colorStats)) {
-                                    $colorStats[$key] += 1;
-                                } else {
-                                    $colorStats[$key] = 1;
-                                }
-                            }
-                        }
+                // left
+                if (!($field->hasNoLeftCell($i))) {
+                    $leftIndex = $i - $field->width;
+                    if ($field->isNotPlayerCell($leftIndex)) {
+                        $key = Colors::$colorsTable[$field->cells[$leftIndex]["color"]]; 
+                        array_push($colorStats[$key], $leftIndex);
                     }
                 }
-
-                // Get rid of player colors
-                $colorStats[Colors::$colorsTable[$response['players'][1]['color']]] = -1;
-                $colorStats[Colors::$colorsTable[$response['players'][2]['color']]] = -1;
-
-                // Get the most popular color
-                $nextColor = Colors::$colors[array_search(max($colorStats),$colorStats)];
-
-                // NOTE: this call blocks
-                $response = $this->performPut([
-                    'id' => $response['id'],
-                    'currentPlayerId' => $response['currentPlayerId'],
-                    'nextColor' => $nextColor,
-                ], 100000);
-
-                $response
-                    ->assertStatus(201);
+                
+                // top
+                if (!($field->hasNoTopCell($i))) {
+                    $topIndex = $i - $field->width + 1;
+                    if ($field->isNotPlayerCell($topIndex)) {
+                        $key = Colors::$colorsTable[$field->cells[$topIndex]["color"]]; 
+                        array_push($colorStats[$key], $topIndex);
+                    }
+                }
+                
+                // right
+                if (!($field->hasNoRightCell($i))) {
+                    $rightIndex = $i + $field->width;
+                    if ($field->isNotPlayerCell($rightIndex)) {
+                        $key = Colors::$colorsTable[$field->cells[$rightIndex]["color"]]; 
+                        array_push($colorStats[$key], $rightIndex);
+                    }
+                }
+                    
+                // bottom
+                if (!($field->hasNoBottomCell($i))) {
+                    $bottomIndex = $i + $field->width - 1;
+                    if ($field->isNotPlayerCell($bottomIndex)) {
+                        $key = Colors::$colorsTable[$field->cells[$bottomIndex]["color"]]; 
+                        array_push($colorStats[$key], $bottomIndex);
+                    }
+                }
+            }
             }
 
-            return [
+            // Get rid of player colors
+            unset($colorStats[Colors::$colorsTable[$response['players'][1]['color']]]);
+            unset($colorStats[Colors::$colorsTable[$response['players'][2]['color']]]);
+
+            // Not needed, but just in case
+            $this->assertTrue(count($colorStats) == 5);
+
+            // Cells must be unique
+            foreach ($colorStats as $colorKey => $colorStat) {
+                $colorStats[$colorKey] = array_unique($colorStat);
+            }
+
+            // Get the most popular color
+            $maxIdx = array_key_first($colorStats);
+            foreach ($colorStats as $colorKey => $cells) {
+                if (count($colorStats[$maxIdx]) < count($cells)) {
+                    $maxIdx = $colorKey;
+                }
+            }
+            $nextColor = Colors::$colors[$maxIdx];
+
+            // Merge new cells into stats
+            $stats[$response['currentPlayerId']] = 
+                array_merge($stats[$response['currentPlayerId']], $colorStats[$maxIdx]);
+
+            // Test for duplicates
+            if(count($stats[$response['currentPlayerId']]) != count(array_unique($stats[$response['currentPlayerId']]))) {
+                var_dump($stats);
+                var_dump($colorStats);
+                var_dump($nextColor);
+                var_dump($response['players'][$response['currentPlayerId']]);
+            }
+
+            $this->assertTrue(
+                count($stats[$response['currentPlayerId']]) == count(array_unique($stats[$response['currentPlayerId']]))
+            );
+
+            // Cleanup
+            unset($colorStats);
+
+            // NOTE: this call blocks
+            $response = $this->performPut([
                 'id' => $response['id'],
-            ];
+                'currentPlayerId' => $response['currentPlayerId'],
+                'nextColor' => $nextColor,
+            ], 1000);
+
+            $response
+                ->assertStatus(201);
+
+            $moves++;
         }
+
+        var_dump(["move count" => $moves]);
+
+        return [
+            'id' => $response['id'],
+        ];
     }
+
+}

@@ -64,6 +64,9 @@ class Game extends Model {
         // update player color
         $players[$currentPlayerId]["color"] = $color;
 
+        // NOTE: If a new cell is assignable then its ID is set to player id ->
+        //  this way same cell won;t be added twice. (Because cell's ID != 0).
+        //
         // update cells field & stats : IDs
         for ($i = 0; $i < count($stats[$currentPlayerId]); $i++) {
             $cellIndex = $stats[$currentPlayerId][$i];
