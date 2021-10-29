@@ -27,7 +27,8 @@ docker-compose -f docker-compose.testing.yml build \
 ```bash
 cp .env.sample .env
 ```
-Update database config
+Then update database config  
+
   2. Initialize app.
 ```bash
 php artisan key:generate
